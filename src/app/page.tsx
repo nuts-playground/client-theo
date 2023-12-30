@@ -1,23 +1,21 @@
-import GameBoard from "@/components/gameBoard";
+import GameSection from "@/components/gameSection";
 import GameList from "@/components/gameList";
-import StatusBoard from "@/components/statusBoard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import StatusSection from "@/components/statusSection";
 
 export default function Home() {
     return (
         <>
-            <GameBoard>
+            <GameSection>
                 <GameList />
-            </GameBoard>
-            <StatusBoard>
-                {/* <div>
+            </GameSection>
+            <StatusSection>
+                <div>
                     <div>
-                        <FontAwesomeIcon icon={faUsers} />
+                        {/* <FontAwesomeIcon icon={faUsers} /> */}
                         방문자
                     </div>
-                </div> */}
-            </StatusBoard>
+                </div>
+            </StatusSection>
         </>
     );
 }

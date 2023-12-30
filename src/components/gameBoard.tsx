@@ -1,3 +1,71 @@
-export default ({ children }: { children: React.ReactElement }) => {
-    return <div className="w-4/6">{children}</div>;
+"use client";
+export interface IGameCell {
+    user: string;
+    value: true | false;
+    focus: {
+        user: string;
+        isFocus: true | false;
+    };
+}
+
+interface IGameBoard {
+    gridBoard: IGameCell[][];
+    setGrid: Function;
+}
+
+export const GameBoard = ({ gridBoard, setGrid }: IGameBoard) => {
+    return (
+        <table>
+            <tbody className="rounded overflow-hidden">
+                {gridBoard.map((y: IGameCell[], yIndex: number) => {
+                    const row = y.map((x: IGameCell, xIndex: number) => {
+                        return (
+                            <td
+                                className={`first:border-l-0 last:border-r-0 border-t-0 border-4 border-gray-600 ${
+                                    gridBoard.length - 1 === yIndex
+                                        ? "border-b-0"
+                                        : ""
+                                }`}
+                                key={xIndex}
+                            >
+                                <button
+                                    className="flex justify-center items-center w-32 h-32"
+                                    onClick={() => {
+                                        setGrid((prev: IGameCell[][]) => {
+                                            prev[yIndex][xIndex].value = true;
+                                            return [...prev];
+                                        });
+                                    }}
+                                >
+                                    {x.value ? "O" : "X"}
+                                </button>
+                            </td>
+                        );
+                    });
+                    return (
+                        <tr className="" key={yIndex}>
+                            {row}
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
+    );
+};
+
+export const createGridBoard = (x: number, y: number) => {
+    const gridBoard = [];
+    for (let i = 0; i < y; i++) {
+        gridBoard[i] = Array.from({ length: x }, () => {
+            return {
+                user: "",
+                value: false,
+                focus: {
+                    user: "",
+                    isFocus: false,
+                },
+            };
+        });
+    }
+    return gridBoard;
 };
