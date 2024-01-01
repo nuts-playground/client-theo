@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { Inter, Gaegu } from "next/font/google";
+import { Gaegu } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
 const gaegu = Gaegu({
     subsets: ["latin"],
     weight: ["300", "400", "700"],

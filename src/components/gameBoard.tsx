@@ -1,19 +1,19 @@
 "use client";
 export interface IGameCell {
-    user: string;
+    player: string;
     value: true | false;
     focus: {
-        user: string;
+        player: string;
         isFocus: true | false;
     };
 }
 
 interface IGameBoard {
     gridBoard: IGameCell[][];
-    setGrid: Function;
+    cellClick: Function;
 }
 
-export const GameBoard = ({ gridBoard, setGrid }: IGameBoard) => {
+export const GameBoard = ({ gridBoard, cellClick }: IGameBoard) => {
     return (
         <table>
             <tbody className="rounded overflow-hidden">
@@ -29,15 +29,12 @@ export const GameBoard = ({ gridBoard, setGrid }: IGameBoard) => {
                                 key={xIndex}
                             >
                                 <button
-                                    className="flex justify-center items-center w-32 h-32"
+                                    className="flex justify-center items-center w-32 h-32 text-8xl"
                                     onClick={() => {
-                                        setGrid((prev: IGameCell[][]) => {
-                                            prev[yIndex][xIndex].value = true;
-                                            return [...prev];
-                                        });
+                                        cellClick(yIndex, xIndex);
                                     }}
                                 >
-                                    {x.value ? "O" : "X"}
+                                    {x.value ? x.player : ""}
                                 </button>
                             </td>
                         );
@@ -58,10 +55,10 @@ export const createGridBoard = (x: number, y: number) => {
     for (let i = 0; i < y; i++) {
         gridBoard[i] = Array.from({ length: x }, () => {
             return {
-                user: "",
+                player: "",
                 value: false,
                 focus: {
-                    user: "",
+                    player: "",
                     isFocus: false,
                 },
             };
