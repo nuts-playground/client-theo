@@ -1,4 +1,6 @@
 "use client";
+import { motion } from "framer-motion";
+
 export interface IGameCell {
     player: string;
     value: true | false;
@@ -34,7 +36,19 @@ export const GameBoard = ({ gridBoard, cellClick }: IGameBoard) => {
                                         cellClick(yIndex, xIndex);
                                     }}
                                 >
-                                    {x.value ? x.player : ""}
+                                    {x.value ? (
+                                        <motion.span
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 600,
+                                                duration: 150,
+                                            }}
+                                        >
+                                            {x.player}
+                                        </motion.span>
+                                    ) : null}
                                 </button>
                             </td>
                         );
