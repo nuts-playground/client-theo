@@ -8,19 +8,21 @@ import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 export default () => {
     const [boardData, setBoardData] = useState<IGameCell[][]>([[]]);
     const [players, setPlayers] = useState<string[]>(["O", "X"]);
-    const [currentPlayer, setCurrentPlayer] = useState<String>("O");
-    const [timer, setTimer] = useState<number>(0);
+    const [currentPlayer, setCurrentPlayer] = useState<string>(players[0]);
     const [isStart, setIsStart] = useState<Boolean>(false);
+    const [winner, setWinner] = useState<string>("");
 
     const gameStart = () => {
         setIsStart(true);
     };
 
     const changeTurn = () => {
-        setPlayers((prev: string[]) => [...prev.reverse()]);
+        setCurrentPlayer((prev) => {
+            return prev === players[0] ? players[1] : players[0];
+        });
     };
 
-    const checkGameOver = (boardData: IGameCell[][], player: string) => {
+    const checkGameOver = () => {
         const lineArray = [
             // 가로 3줄
             [boardData[0][0], boardData[0][1], boardData[0][2]],
@@ -37,11 +39,10 @@ export default () => {
         for (let i = 0; i < lineArray.length; i++) {
             if (
                 lineArray[i].every(
-                    (item) => item.player.trim() === player.trim()
+                    (item) => item.player.trim() === currentPlayer.trim()
                 )
             ) {
-                alert(`${player}의 승리`);
-                resetBoard();
+                setWinner(currentPlayer);
                 return;
             }
         }
@@ -51,52 +52,79 @@ export default () => {
         });
 
         if (cellArray.every((cell) => cell.value)) {
-            alert("무승부!");
-            resetBoard();
+            setWinner("drow");
         }
     };
 
     const onClick = (y: number, x: number) => {
         if (boardData[y][x].value) return false;
 
-        const player = players[0];
         setBoardData((prev: IGameCell[][]) => {
             prev[y][x].value = true;
-            prev[y][x].player = player;
+            prev[y][x].player = currentPlayer;
             changeTurn();
-            checkGameOver([...prev], player);
+            checkGameOver();
             return [...prev];
         });
     };
 
     const resetBoard = () => {
+        setIsStart(false);
+        setCurrentPlayer(players[0]);
         setBoardData(createGridBoard(3, 3));
+        setWinner("");
     };
 
     useEffect(() => {
-        setInterval(() => {
-            setTimer((prev) => prev + 1);
-        }, 1000);
         setBoardData(createGridBoard(3, 3));
     }, []);
+
     return (
         <>
             <GameSection>
                 <GameBoard
                     gridBoard={boardData}
                     cellClick={onClick}
+                    isStart={isStart}
                 ></GameBoard>
             </GameSection>
-            <StatusSection title={"틱택토"}>
+            <StatusSection
+                title={"틱택토"}
+                description={
+                    "O와 X가 서로 번갈아 가며 그립니다. 가로, 세로, 대각선을 먼저 만든 사람이 이깁니다."
+                }
+            >
                 <>
                     {isStart ? (
                         <div>
-                            <div className="text-3xl">
-                                {players[0]}과 {players[1]}의 승부!
-                            </div>
-                            <div className="text-2xl">{timer}초 경과</div>
-                            <div className="text-2xl">
-                                {currentPlayer}의 차례!
+                            <div className="flex text-6xl font-bold">
+                                <span className="relative">
+                                    {players[0]}
+                                    {currentPlayer === players[0] ? (
+                                        <div className="absolute text-2xl left-1/2 whitespace-nowrap -translate-x-1/2">
+                                            <motion.div
+                                                layout
+                                                layoutId="player"
+                                            >
+                                                {players[0]}의 차례!
+                                            </motion.div>
+                                        </div>
+                                    ) : null}
+                                </span>
+                                <span className="mx-4">VS</span>
+                                <span className="relative">
+                                    {players[1]}
+                                    {currentPlayer === players[1] ? (
+                                        <div className="absolute text-2xl left-1/2 whitespace-nowrap -translate-x-1/2">
+                                            <motion.div
+                                                layout
+                                                layoutId="player"
+                                            >
+                                                {players[1]}의 차례!
+                                            </motion.div>
+                                        </div>
+                                    ) : null}
+                                </span>
                             </div>
                         </div>
                     ) : (
@@ -111,6 +139,60 @@ export default () => {
                             게임 시작!
                         </motion.button>
                     )}
+
+                    {players.some((player) => player === winner) ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="fixed inset-0 flex justify-center items-center w-screen h-screen"
+                        >
+                            <div className="absolute inset-0 bg-gray-900 opacity-20"></div>
+                            <motion.div
+                                layout
+                                layoutId="player"
+                                className="relative px-8 py-4 text-6xl font-bold bg-gray-200 rounded-lg border-4 border-gray-900"
+                            >
+                                {winner}의 승리!
+                                <motion.button
+                                    initial={{ opacity: 0, y: -40 }}
+                                    animate={{ opacity: 1, y: 70 }}
+                                    transition={{ delay: 0.6 }}
+                                    className="absolute inset-x-0 bottom-0 text-center text-3xl hover:underline"
+                                    type="button"
+                                    onClick={resetBoard}
+                                >
+                                    다시하기
+                                </motion.button>
+                            </motion.div>
+                        </motion.div>
+                    ) : null}
+
+                    {winner === "drow" ? (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="fixed inset-0 flex justify-center items-center w-screen h-screen"
+                        >
+                            <div className="absolute inset-0 bg-gray-900 opacity-20"></div>
+                            <motion.div
+                                layout
+                                layoutId="player"
+                                className="relative px-8 py-4 text-6xl font-bold bg-gray-200 rounded-lg border-4 border-gray-900"
+                            >
+                                무승부!
+                                <motion.button
+                                    initial={{ opacity: 0, y: -40 }}
+                                    animate={{ opacity: 1, y: 70 }}
+                                    transition={{ delay: 0.6 }}
+                                    className="absolute inset-x-0 bottom-0 text-center text-3xl hover:underline"
+                                    type="button"
+                                    onClick={resetBoard}
+                                >
+                                    다시하기
+                                </motion.button>
+                            </motion.div>
+                        </motion.div>
+                    ) : null}
                 </>
             </StatusSection>
         </>

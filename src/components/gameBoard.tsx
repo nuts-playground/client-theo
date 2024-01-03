@@ -13,9 +13,10 @@ export interface IGameCell {
 interface IGameBoard {
     gridBoard: IGameCell[][];
     cellClick: Function;
+    isStart: Boolean;
 }
 
-export const GameBoard = ({ gridBoard, cellClick }: IGameBoard) => {
+export const GameBoard = ({ gridBoard, cellClick, isStart }: IGameBoard) => {
     return (
         <table>
             <tbody className="rounded overflow-hidden">
@@ -30,26 +31,30 @@ export const GameBoard = ({ gridBoard, cellClick }: IGameBoard) => {
                                 }`}
                                 key={xIndex}
                             >
-                                <button
-                                    className="flex justify-center items-center w-32 h-32 text-8xl"
-                                    onClick={() => {
-                                        cellClick(yIndex, xIndex);
-                                    }}
-                                >
-                                    {x.value ? (
-                                        <motion.span
-                                            initial={{ scale: 0 }}
-                                            animate={{ scale: 1 }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 600,
-                                                duration: 150,
-                                            }}
-                                        >
-                                            {x.player}
-                                        </motion.span>
-                                    ) : null}
-                                </button>
+                                {isStart ? (
+                                    <button
+                                        className="flex justify-center items-center w-32 h-32 text-8xl"
+                                        onClick={() => {
+                                            cellClick(yIndex, xIndex);
+                                        }}
+                                    >
+                                        {x.value ? (
+                                            <motion.span
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                transition={{
+                                                    type: "spring",
+                                                    stiffness: 600,
+                                                    duration: 150,
+                                                }}
+                                            >
+                                                {x.player}
+                                            </motion.span>
+                                        ) : null}
+                                    </button>
+                                ) : (
+                                    <div className="flex justify-center items-center w-32 h-32 text-8xl"></div>
+                                )}
                             </td>
                         );
                     });
