@@ -4,7 +4,7 @@ const dummyGameList = [
     {
         id: "tictactoe",
         title: "틱택토",
-        tags: ["멀티플레이", "복불복", "심리"],
+        tags: ["2인용", "쉬운"],
     },
 ];
 
@@ -15,7 +15,11 @@ export default () => {
                 return (
                     <li key={index}>
                         <Link href={`/games/${game.id}`}>
-                            <GameCard title={game.title} tags={game.tags} />
+                            <GameCard
+                                title={game.title}
+                                tags={game.tags}
+                                id={game.id}
+                            />
                         </Link>
                     </li>
                 );

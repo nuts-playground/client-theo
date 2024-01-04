@@ -1,8 +1,16 @@
 "use client";
 import { motion } from "framer-motion";
+import {
+    Button,
+    Input,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
+} from "@nextui-org/react";
+import { io } from "socket.io-client";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 
 export default () => {
@@ -11,6 +19,23 @@ export default () => {
     const [currentPlayer, setCurrentPlayer] = useState<string>(players[0]);
     const [isStart, setIsStart] = useState<Boolean>(false);
     const [winner, setWinner] = useState<string>("");
+    const [player, setPlayer] = useState<string>("");
+    const [isJoin, setIsJoin] = useState<boolean>(false);
+
+    var socket = io("http://localhost:3001");
+
+    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlayer(e.target.value);
+    };
+    const onJoin = () => {
+        if (player) {
+            setIsJoin(true);
+            console.log(player, "player", "roomId");
+            // socket.emit("join_room", roomId);
+        } else {
+            alert("Please fill in player and Room Id");
+        }
+    };
 
     const gameStart = () => {
         setIsStart(true);
@@ -89,15 +114,15 @@ export default () => {
                 ></GameBoard>
             </GameSection>
             <StatusSection
-                title={"틱택토"}
+                title={"Tictactoe"}
                 description={
-                    "O와 X가 서로 번갈아 가며 그립니다. 가로, 세로, 대각선을 먼저 만든 사람이 이깁니다."
+                    "O and X are drawn alternately. The first person to create horizontal, vertical, and diagonal lines wins."
                 }
             >
                 <>
                     {isStart ? (
                         <div>
-                            <div className="flex text-6xl font-bold">
+                            <div className="flex items-end text-6xl font-bold">
                                 <span className="relative">
                                     {players[0]}
                                     {currentPlayer === players[0] ? (
@@ -106,12 +131,12 @@ export default () => {
                                                 layout
                                                 layoutId="player"
                                             >
-                                                {players[0]}의 차례!
+                                                {players[0]}'s turn!
                                             </motion.div>
                                         </div>
                                     ) : null}
                                 </span>
-                                <span className="mx-4">VS</span>
+                                <span className="mx-1 text-base">VS</span>
                                 <span className="relative">
                                     {players[1]}
                                     {currentPlayer === players[1] ? (
@@ -120,7 +145,7 @@ export default () => {
                                                 layout
                                                 layoutId="player"
                                             >
-                                                {players[1]}의 차례!
+                                                {players[1]}'s turn!
                                             </motion.div>
                                         </div>
                                     ) : null}
@@ -128,16 +153,66 @@ export default () => {
                             </div>
                         </div>
                     ) : (
-                        <motion.button
-                            initial={{ scale: 1 }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={gameStart}
-                            className="py-1 px-5 text-2xl font-bold border-2 border-gray-600 rounded-lg bg-gray-100"
-                            type="button"
-                        >
-                            게임 시작!
-                        </motion.button>
+                        <div>
+                            {isJoin ? null : (
+                                <>
+                                    <div className="flex mb-2">
+                                        <Input
+                                            className="w-60 mr-2"
+                                            type="text"
+                                            color="primary"
+                                            size="sm"
+                                            value={player}
+                                            placeholder="Enter your name and join"
+                                            onChange={onChange}
+                                        />
+                                        {player ? (
+                                            <Button
+                                                type="button"
+                                                color="primary"
+                                                size="lg"
+                                                onClick={onJoin}
+                                            >
+                                                Join
+                                            </Button>
+                                        ) : (
+                                            <Popover placement="right">
+                                                <PopoverTrigger>
+                                                    <Button
+                                                        type="button"
+                                                        color="primary"
+                                                        size="lg"
+                                                    >
+                                                        Join
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent>
+                                                    <div className="px-1 py-2">
+                                                        <div className="text-small font-bold">
+                                                            The name is empty.
+                                                        </div>
+                                                        <div className="text-tiny">
+                                                            Please enter your
+                                                            name for
+                                                            multiplayer.
+                                                        </div>
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )}
+                                    </div>
+                                    <Button
+                                        className="w-full"
+                                        onClick={gameStart}
+                                        color="primary"
+                                        type="button"
+                                        size="lg"
+                                    >
+                                        Local play
+                                    </Button>
+                                </>
+                            )}
+                        </div>
                     )}
 
                     {players.some((player) => player === winner) ? (
@@ -152,7 +227,7 @@ export default () => {
                                 layoutId="player"
                                 className="relative px-8 py-4 text-6xl font-bold bg-gray-200 rounded-lg border-4 border-gray-900"
                             >
-                                {winner}의 승리!
+                                {winner}'s victory
                                 <motion.button
                                     initial={{ opacity: 0, y: -40 }}
                                     animate={{ opacity: 1, y: 70 }}
@@ -161,7 +236,7 @@ export default () => {
                                     type="button"
                                     onClick={resetBoard}
                                 >
-                                    다시하기
+                                    Again
                                 </motion.button>
                             </motion.div>
                         </motion.div>
@@ -179,7 +254,7 @@ export default () => {
                                 layoutId="player"
                                 className="relative px-8 py-4 text-6xl font-bold bg-gray-200 rounded-lg border-4 border-gray-900"
                             >
-                                무승부!
+                                Draw!
                                 <motion.button
                                     initial={{ opacity: 0, y: -40 }}
                                     animate={{ opacity: 1, y: 70 }}
@@ -188,7 +263,7 @@ export default () => {
                                     type="button"
                                     onClick={resetBoard}
                                 >
-                                    다시하기
+                                    Again
                                 </motion.button>
                             </motion.div>
                         </motion.div>
