@@ -3,9 +3,6 @@ import { motion } from "framer-motion";
 import {
     Button,
     Input,
-    Popover,
-    PopoverTrigger,
-    PopoverContent,
     Listbox,
     ListboxItem,
     Modal,
@@ -22,6 +19,7 @@ import { useEffect, useState, Key } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
+import PopoverButton from "@/components/popoverButton";
 
 export default () => {
     const [boardData, setBoardData] = useState<IGameCell[][]>([[]]);
@@ -257,49 +255,16 @@ export default () => {
                                                         >
                                                             Close
                                                         </Button>
-                                                        {roomName ? (
-                                                            <Button
-                                                                type="button"
-                                                                color="primary"
-                                                                size="lg"
-                                                                onPress={
-                                                                    createRoom
-                                                                }
-                                                            >
-                                                                Create
-                                                            </Button>
-                                                        ) : (
-                                                            <Popover placement="right">
-                                                                <PopoverTrigger>
-                                                                    <Button
-                                                                        type="button"
-                                                                        color="primary"
-                                                                        size="lg"
-                                                                    >
-                                                                        Create
-                                                                    </Button>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent>
-                                                                    <div className="px-1 py-2">
-                                                                        <div className="text-small font-bold">
-                                                                            The
-                                                                            room
-                                                                            name
-                                                                            is
-                                                                            empty.
-                                                                        </div>
-                                                                        <div className="text-tiny">
-                                                                            Please
-                                                                            enter
-                                                                            room
-                                                                            name
-                                                                            for
-                                                                            multiplayer.
-                                                                        </div>
-                                                                    </div>
-                                                                </PopoverContent>
-                                                            </Popover>
-                                                        )}
+
+                                                        <PopoverButton
+                                                            condition={Boolean(
+                                                                roomName
+                                                            )}
+                                                            onClick={createRoom}
+                                                            buttonText="Create"
+                                                            popoverTitle="The room name is empty."
+                                                            popoverText="Please enter room name for multiplayer."
+                                                        />
                                                     </ModalFooter>
                                                 </>
                                             )}
@@ -322,40 +287,14 @@ export default () => {
                                                 setPlayer(e.target.value);
                                             }}
                                         />
-                                        {player ? (
-                                            <Button
-                                                type="button"
-                                                color="primary"
-                                                size="lg"
-                                                onClick={getRoom}
-                                            >
-                                                Join
-                                            </Button>
-                                        ) : (
-                                            <Popover placement="right">
-                                                <PopoverTrigger>
-                                                    <Button
-                                                        type="button"
-                                                        color="primary"
-                                                        size="lg"
-                                                    >
-                                                        Join
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent>
-                                                    <div className="px-1 py-2">
-                                                        <div className="text-small font-bold">
-                                                            The name is empty.
-                                                        </div>
-                                                        <div className="text-tiny">
-                                                            Please enter your
-                                                            name for
-                                                            multiplayer.
-                                                        </div>
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        )}
+
+                                        <PopoverButton
+                                            condition={Boolean(player)}
+                                            onClick={getRoom}
+                                            buttonText="Multiplay"
+                                            popoverTitle="The name is empty."
+                                            popoverText=" Please enter your name for multiplayer."
+                                        />
                                     </div>
                                     <Button
                                         className="w-full"
