@@ -11,7 +11,28 @@ const io = new Server(httpServer, {
     },
 });
 
-io.on("connection", (socket) => {});
+const tictactoe = [];
+
+io.on("connection", (socket) => {
+    console.log("연결", socket.id);
+    socket.on("getRoom", () => {
+        console.log("입장");
+        socket.emit("getRoom", tictactoe);
+    });
+
+    socket.on("createRoom", (roomData) => {
+        tictactoe.push({
+            id: Date.now(),
+            roomName: roomData.roomName,
+            players: [roomData.player],
+        });
+        socket.emit("getRoom", tictactoe);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("연결 해제", socket.id);
+    });
+});
 
 const PORT = process.env.PORT || 3001;
 httpServer.listen(PORT, () => {

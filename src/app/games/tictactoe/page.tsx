@@ -6,12 +6,22 @@ import {
     Popover,
     PopoverTrigger,
     PopoverContent,
+    Listbox,
+    ListboxItem,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
 } from "@nextui-org/react";
 import { io } from "socket.io-client";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
-import { ReactElement, useEffect, useState } from "react";
+import { useEffect, useState, Key } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 
 export default () => {
     const [boardData, setBoardData] = useState<IGameCell[][]>([[]]);
@@ -21,21 +31,15 @@ export default () => {
     const [winner, setWinner] = useState<string>("");
     const [player, setPlayer] = useState<string>("");
     const [isJoin, setIsJoin] = useState<boolean>(false);
+    const [rooms, setRooms] = useState<any>([]);
+    const [roomName, setRoomName] = useState<string>("");
+    const [socket, setSocket] = useState<any>();
 
-    var socket = io("http://localhost:3001");
-
-    const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPlayer(e.target.value);
-    };
-    const onJoin = () => {
-        if (player) {
-            setIsJoin(true);
-            console.log(player, "player", "roomId");
-            // socket.emit("join_room", roomId);
-        } else {
-            alert("Please fill in player and Room Id");
-        }
-    };
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+    const isOpenCreateRoom = isOpen;
+    const onOpenCreateRoom = onOpen;
+    const onCloseCreateRoom = onClose;
+    const onOpenCreateRoomChange = onOpenChange;
 
     const gameStart = () => {
         setIsStart(true);
@@ -100,8 +104,27 @@ export default () => {
         setWinner("");
     };
 
+    const getRoom = () => {
+        setIsJoin(true);
+        socket.emit("getRoom");
+    };
+
+    const createRoom = () => {
+        setRoomName("");
+        onCloseCreateRoom();
+        getRoom();
+        socket.emit("createRoom", { roomName: roomName, player: player });
+    };
+
     useEffect(() => {
         setBoardData(createGridBoard(3, 3));
+
+        const socket = io("http://localhost:3001");
+        socket.on("getRoom", (rooms) => {
+            console.log(rooms);
+            setRooms([...rooms]);
+        });
+        setSocket(socket);
     }, []);
 
     return (
@@ -154,24 +177,157 @@ export default () => {
                         </div>
                     ) : (
                         <div>
-                            {isJoin ? null : (
-                                <>
+                            {isJoin ? (
+                                <div>
+                                    <Listbox
+                                        className="mb-2 gap-0 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium"
+                                        aria-label="Actions"
+                                        emptyContent="There are currently no rooms available. Please make a room."
+                                    >
+                                        {rooms.map(
+                                            (room: any, index: number) => {
+                                                return (
+                                                    <ListboxItem
+                                                        key={index}
+                                                        startContent={
+                                                            <FontAwesomeIcon
+                                                                icon={
+                                                                    faDoorOpen
+                                                                }
+                                                            />
+                                                        }
+                                                        description={`참가자: ${room.players
+                                                            .map(
+                                                                (
+                                                                    player: string
+                                                                ) =>
+                                                                    player + ","
+                                                            )
+                                                            .join("")}`}
+                                                    >
+                                                        {room.roomName}
+                                                    </ListboxItem>
+                                                );
+                                            }
+                                        )}
+                                    </Listbox>
+                                    <Button
+                                        className="w-full"
+                                        type="button"
+                                        color="primary"
+                                        size="lg"
+                                        onPress={onOpenCreateRoom}
+                                    >
+                                        Create room
+                                    </Button>
+                                    <Modal
+                                        isOpen={isOpenCreateRoom}
+                                        onOpenChange={onOpenCreateRoomChange}
+                                        size="sm"
+                                    >
+                                        <ModalContent>
+                                            {(onClose) => (
+                                                <>
+                                                    <ModalHeader className="flex flex-col gap-1">
+                                                        Create room
+                                                    </ModalHeader>
+                                                    <ModalBody>
+                                                        <Input
+                                                            className="grow mr-2"
+                                                            type="text"
+                                                            color="primary"
+                                                            size="sm"
+                                                            value={roomName}
+                                                            placeholder="Please enter the room name"
+                                                            onChange={(
+                                                                e: React.ChangeEvent<HTMLInputElement>
+                                                            ) => {
+                                                                setRoomName(
+                                                                    e.target
+                                                                        .value
+                                                                );
+                                                            }}
+                                                        />
+                                                    </ModalBody>
+                                                    <ModalFooter>
+                                                        <Button
+                                                            color="danger"
+                                                            variant="light"
+                                                            onPress={onClose}
+                                                        >
+                                                            Close
+                                                        </Button>
+                                                        {roomName ? (
+                                                            <Button
+                                                                type="button"
+                                                                color="primary"
+                                                                size="lg"
+                                                                onPress={
+                                                                    createRoom
+                                                                }
+                                                            >
+                                                                Create
+                                                            </Button>
+                                                        ) : (
+                                                            <Popover placement="right">
+                                                                <PopoverTrigger>
+                                                                    <Button
+                                                                        type="button"
+                                                                        color="primary"
+                                                                        size="lg"
+                                                                    >
+                                                                        Create
+                                                                    </Button>
+                                                                </PopoverTrigger>
+                                                                <PopoverContent>
+                                                                    <div className="px-1 py-2">
+                                                                        <div className="text-small font-bold">
+                                                                            The
+                                                                            room
+                                                                            name
+                                                                            is
+                                                                            empty.
+                                                                        </div>
+                                                                        <div className="text-tiny">
+                                                                            Please
+                                                                            enter
+                                                                            room
+                                                                            name
+                                                                            for
+                                                                            multiplayer.
+                                                                        </div>
+                                                                    </div>
+                                                                </PopoverContent>
+                                                            </Popover>
+                                                        )}
+                                                    </ModalFooter>
+                                                </>
+                                            )}
+                                        </ModalContent>
+                                    </Modal>
+                                </div>
+                            ) : (
+                                <div className="w-[350px] max-w-full">
                                     <div className="flex mb-2">
                                         <Input
-                                            className="w-60 mr-2"
+                                            className="grow mr-2"
                                             type="text"
                                             color="primary"
                                             size="sm"
                                             value={player}
                                             placeholder="Enter your name and join"
-                                            onChange={onChange}
+                                            onChange={(
+                                                e: React.ChangeEvent<HTMLInputElement>
+                                            ) => {
+                                                setPlayer(e.target.value);
+                                            }}
                                         />
                                         {player ? (
                                             <Button
                                                 type="button"
                                                 color="primary"
                                                 size="lg"
-                                                onClick={onJoin}
+                                                onClick={getRoom}
                                             >
                                                 Join
                                             </Button>
@@ -210,7 +366,7 @@ export default () => {
                                     >
                                         Local play
                                     </Button>
-                                </>
+                                </div>
                             )}
                         </div>
                     )}
