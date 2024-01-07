@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
     socket.on("createRoom", (roomData) => {
         tictactoe.push({
             id: Date.now(),
-            roomName: roomData.roomName,
+            name: roomData.roomName,
             players: [roomData.player],
         });
         socket.emit("getRoom", tictactoe);
