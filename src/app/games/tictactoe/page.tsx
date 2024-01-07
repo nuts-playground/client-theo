@@ -49,6 +49,76 @@ const RoomList = ({ rooms }: { rooms: IRoom[] }) => {
     );
 };
 
+const GameLobby = ({
+    rooms,
+    socket,
+    player,
+}: {
+    rooms: IRoom[];
+    socket: any;
+    player: string;
+}) => {
+    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+    const [roomName, setRoomName] = useState<string>("");
+    const createRoom = () => {
+        setRoomName("");
+        onClose();
+        getRoom();
+        socket.emit("createRoom", { roomName: roomName, player: player });
+    };
+
+    const getRoom = () => {
+        socket.emit("getRoom");
+    };
+
+    return (
+        <div>
+            <RoomList rooms={rooms} />
+
+            <Button
+                className="w-full"
+                type="button"
+                color="primary"
+                size="lg"
+                onPress={onOpen}
+            >
+                Create room
+            </Button>
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        Create room
+                    </ModalHeader>
+                    <ModalBody>
+                        <Input
+                            className="grow mr-2"
+                            type="text"
+                            color="primary"
+                            size="sm"
+                            value={roomName}
+                            placeholder="Please enter the room name"
+                            onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>
+                            ) => {
+                                setRoomName(e.target.value);
+                            }}
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <PopoverButton
+                            condition={Boolean(roomName)}
+                            onClick={createRoom}
+                            buttonText="Create"
+                            popoverTitle="The room name is empty."
+                            popoverText="Please enter room name for multiplayer."
+                        />
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+        </div>
+    );
+};
+
 export default () => {
     const [boardData, setBoardData] = useState<IGameCell[][]>([[]]);
     const [players, setPlayers] = useState<string[]>(["O", "X"]);
@@ -60,12 +130,7 @@ export default () => {
     const [rooms, setRooms] = useState<any>([]);
     const [roomName, setRoomName] = useState<string>("");
     const [socket, setSocket] = useState<any>();
-
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-    const isOpenCreateRoom = isOpen;
-    const onOpenCreateRoom = onOpen;
-    const onCloseCreateRoom = onClose;
-    const onOpenCreateRoomChange = onOpenChange;
 
     const gameStart = () => {
         setIsStart(true);
@@ -137,7 +202,7 @@ export default () => {
 
     const createRoom = () => {
         setRoomName("");
-        onCloseCreateRoom();
+        onClose();
         getRoom();
         socket.emit("createRoom", { roomName: roomName, player: player });
     };
@@ -192,97 +257,44 @@ export default () => {
                                 ) : null}
                             </span>
                         </div>
+                    ) : null}
+
+                    {isMultiplay ? (
+                        <GameLobby rooms={rooms} socket={socket} />
                     ) : (
-                        <div>
-                            {isMultiplay ? (
-                                <div>
-                                    <RoomList rooms={rooms} />
+                        <div className="w-[350px] max-w-full">
+                            <div className="flex mb-2">
+                                <Input
+                                    className="grow mr-2"
+                                    type="text"
+                                    color="primary"
+                                    size="sm"
+                                    value={player}
+                                    placeholder="Enter your name and join"
+                                    onChange={(
+                                        e: React.ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        setPlayer(e.target.value);
+                                    }}
+                                />
 
-                                    <Button
-                                        className="w-full"
-                                        type="button"
-                                        color="primary"
-                                        size="lg"
-                                        onPress={onOpenCreateRoom}
-                                    >
-                                        Create room
-                                    </Button>
-                                    <Modal
-                                        isOpen={isOpenCreateRoom}
-                                        onOpenChange={onOpenCreateRoomChange}
-                                        size="sm"
-                                    >
-                                        <ModalContent>
-                                            <ModalHeader className="flex flex-col gap-1">
-                                                Create room
-                                            </ModalHeader>
-                                            <ModalBody>
-                                                <Input
-                                                    className="grow mr-2"
-                                                    type="text"
-                                                    color="primary"
-                                                    size="sm"
-                                                    value={roomName}
-                                                    placeholder="Please enter the room name"
-                                                    onChange={(
-                                                        e: React.ChangeEvent<HTMLInputElement>
-                                                    ) => {
-                                                        setRoomName(
-                                                            e.target.value
-                                                        );
-                                                    }}
-                                                />
-                                            </ModalBody>
-                                            <ModalFooter>
-                                                <PopoverButton
-                                                    condition={Boolean(
-                                                        roomName
-                                                    )}
-                                                    onClick={createRoom}
-                                                    buttonText="Create"
-                                                    popoverTitle="The room name is empty."
-                                                    popoverText="Please enter room name for multiplayer."
-                                                />
-                                            </ModalFooter>
-                                        </ModalContent>
-                                    </Modal>
-                                </div>
-                            ) : (
-                                <div className="w-[350px] max-w-full">
-                                    <div className="flex mb-2">
-                                        <Input
-                                            className="grow mr-2"
-                                            type="text"
-                                            color="primary"
-                                            size="sm"
-                                            value={player}
-                                            placeholder="Enter your name and join"
-                                            onChange={(
-                                                e: React.ChangeEvent<HTMLInputElement>
-                                            ) => {
-                                                setPlayer(e.target.value);
-                                            }}
-                                        />
-
-                                        <PopoverButton
-                                            condition={Boolean(player)}
-                                            onClick={getRoom}
-                                            buttonText="Multiplay"
-                                            popoverTitle="The name is empty."
-                                            popoverText=" Please enter your name for multiplayer."
-                                        />
-                                    </div>
-                                    <Button
-                                        className="w-full"
-                                        onClick={gameStart}
-                                        color="primary"
-                                        type="button"
-                                        size="lg"
-                                    >
-                                        Local play
-                                    </Button>
-                                </div>
-                            )}
+                                <PopoverButton
+                                    condition={Boolean(player)}
+                                    onClick={getRoom}
+                                    buttonText="Multiplay"
+                                    popoverTitle="The name is empty."
+                                    popoverText=" Please enter your name for multiplayer."
+                                />
+                            </div>
+                            <Button
+                                className="w-full"
+                                onClick={gameStart}
+                                color="primary"
+                                type="button"
+                                size="lg"
+                            >
+                                Local play
+                            </Button>
                         </div>
                     )}
 
