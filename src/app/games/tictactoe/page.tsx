@@ -11,14 +11,16 @@ import {
     ModalBody,
     ModalFooter,
     useDisclosure,
+    User,
+    Divider,
 } from "@nextui-org/react";
 import { io } from "socket.io-client";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
-import { useEffect, useState, Key } from "react";
+import { useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDoorOpen } from "@fortawesome/free-solid-svg-icons";
+import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
 
 interface IRoom {
@@ -27,7 +29,78 @@ interface IRoom {
     players: string[];
 }
 
-const RoomList = ({ rooms }: { rooms: IRoom[] }) => {
+const Room = ({
+    joinedRoom,
+    setJoinedRoom,
+    socket,
+    player,
+}: {
+    joinedRoom: any;
+    setJoinedRoom: Function;
+    socket: any;
+    player: string;
+}) => {
+    const exitRoom = () => {
+        setJoinedRoom({});
+        socket.emit("exitRoom", {
+            id: joinedRoom.id,
+            player: player,
+        });
+    };
+
+    return (
+        <>
+            <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
+                {joinedRoom.players.map((player: string, index: number) => {
+                    return (
+                        <>
+                            <User className="text-nowrap" name={player} />
+                            {index !== joinedRoom.players.length - 1 ? (
+                                <Divider
+                                    className="h-4"
+                                    orientation="vertical"
+                                />
+                            ) : null}
+                        </>
+                    );
+                })}
+            </div>
+            <div className="flex space-x-2">
+                <Button
+                    className="w-full"
+                    type="button"
+                    color="default"
+                    size="lg"
+                    onPress={exitRoom}
+                >
+                    Exit
+                </Button>
+                <Button
+                    className="w-full"
+                    type="button"
+                    color="primary"
+                    size="lg"
+                >
+                    Ready
+                </Button>
+            </div>
+        </>
+    );
+};
+
+const RoomList = ({
+    rooms,
+    socket,
+    player,
+}: {
+    rooms: IRoom[];
+    socket: any;
+    player: string;
+}) => {
+    const joinRoom = (roomId: number) => {
+        socket.emit("joinRoom", { id: roomId, player: player });
+    };
+
     return (
         <Listbox
             className="mb-2 gap-0 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium"
@@ -35,11 +108,21 @@ const RoomList = ({ rooms }: { rooms: IRoom[] }) => {
             emptyContent="There are currently no rooms available. Please make a room."
         >
             {rooms.map((room: any, index: number) => {
+                const isFull = room.players.length === 2;
                 return (
                     <ListboxItem
                         key={index}
-                        startContent={<FontAwesomeIcon icon={faDoorOpen} />}
+                        startContent={
+                            isFull ? (
+                                <FontAwesomeIcon icon={faDoorClosed} />
+                            ) : (
+                                <FontAwesomeIcon icon={faDoorOpen} />
+                            )
+                        }
                         description={`참가자: ${room.players.join(", ")}`}
+                        onClick={() => {
+                            joinRoom(room.id);
+                        }}
                     >
                         {room.name}
                     </ListboxItem>
@@ -60,6 +143,7 @@ const GameLobby = ({
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
+    const [joinedRoom, setJoinedRoom] = useState<any>({});
     const createRoom = () => {
         setRoomName("");
         onClose();
@@ -71,50 +155,72 @@ const GameLobby = ({
         socket.emit("getRoom");
     };
 
+    useEffect(() => {
+        socket.on("joinRoom", (data: boolean | object) => {
+            if (data) {
+                setJoinedRoom(data);
+            }
+        });
+    }, []);
+
     return (
         <div>
-            <RoomList rooms={rooms} />
-
-            <Button
-                className="w-full"
-                type="button"
-                color="primary"
-                size="lg"
-                onPress={onOpen}
-            >
-                Create room
-            </Button>
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
-                <ModalContent>
-                    <ModalHeader className="flex flex-col gap-1">
+            {joinedRoom.id ? (
+                <Room
+                    joinedRoom={joinedRoom}
+                    setJoinedRoom={setJoinedRoom}
+                    socket={socket}
+                    player={player}
+                />
+            ) : (
+                <>
+                    <RoomList rooms={rooms} socket={socket} player={player} />
+                    <Button
+                        className="w-full"
+                        type="button"
+                        color="primary"
+                        size="lg"
+                        onPress={onOpen}
+                    >
                         Create room
-                    </ModalHeader>
-                    <ModalBody>
-                        <Input
-                            className="grow mr-2"
-                            type="text"
-                            color="primary"
-                            size="sm"
-                            value={roomName}
-                            placeholder="Please enter the room name"
-                            onChange={(
-                                e: React.ChangeEvent<HTMLInputElement>
-                            ) => {
-                                setRoomName(e.target.value);
-                            }}
-                        />
-                    </ModalBody>
-                    <ModalFooter>
-                        <PopoverButton
-                            condition={Boolean(roomName)}
-                            onClick={createRoom}
-                            buttonText="Create"
-                            popoverTitle="The room name is empty."
-                            popoverText="Please enter room name for multiplayer."
-                        />
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
+                    </Button>
+                    <Modal
+                        isOpen={isOpen}
+                        onOpenChange={onOpenChange}
+                        size="sm"
+                    >
+                        <ModalContent>
+                            <ModalHeader className="flex flex-col gap-1">
+                                Create room
+                            </ModalHeader>
+                            <ModalBody>
+                                <Input
+                                    className="grow mr-2"
+                                    type="text"
+                                    color="primary"
+                                    size="sm"
+                                    value={roomName}
+                                    placeholder="Please enter the room name"
+                                    onChange={(
+                                        e: React.ChangeEvent<HTMLInputElement>
+                                    ) => {
+                                        setRoomName(e.target.value);
+                                    }}
+                                />
+                            </ModalBody>
+                            <ModalFooter>
+                                <PopoverButton
+                                    condition={Boolean(roomName)}
+                                    onClick={createRoom}
+                                    buttonText="Create"
+                                    popoverTitle="The room name is empty."
+                                    popoverText="Please enter room name for multiplayer."
+                                />
+                            </ModalFooter>
+                        </ModalContent>
+                    </Modal>
+                </>
+            )}
         </div>
     );
 };
@@ -128,9 +234,7 @@ export default () => {
     const [player, setPlayer] = useState<string>("");
     const [isMultiplay, setIsMultiplay] = useState<boolean>(false);
     const [rooms, setRooms] = useState<any>([]);
-    const [roomName, setRoomName] = useState<string>("");
     const [socket, setSocket] = useState<any>();
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
 
     const gameStart = () => {
         setIsStart(true);
@@ -200,13 +304,6 @@ export default () => {
         socket.emit("getRoom");
     };
 
-    const createRoom = () => {
-        setRoomName("");
-        onClose();
-        getRoom();
-        socket.emit("createRoom", { roomName: roomName, player: player });
-    };
-
     useEffect(() => {
         setBoardData(createGridBoard(3, 3));
 
@@ -260,7 +357,11 @@ export default () => {
                     ) : null}
 
                     {isMultiplay ? (
-                        <GameLobby rooms={rooms} socket={socket} />
+                        <GameLobby
+                            rooms={rooms}
+                            socket={socket}
+                            player={player}
+                        />
                     ) : (
                         <div className="w-[350px] max-w-full">
                             <div className="flex mb-2">

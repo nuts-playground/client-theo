@@ -11,22 +11,42 @@ const io = new Server(httpServer, {
     },
 });
 
-const tictactoe = [];
+const rooms = [];
 
 io.on("connection", (socket) => {
     console.log("연결", socket.id);
     socket.on("getRoom", () => {
         console.log("입장");
-        socket.emit("getRoom", tictactoe);
+        socket.emit("getRoom", rooms);
     });
 
     socket.on("createRoom", (roomData) => {
-        tictactoe.push({
+        const room = {
             id: Date.now(),
             name: roomData.roomName,
             players: [roomData.player],
-        });
-        socket.emit("getRoom", tictactoe);
+        };
+        rooms.push(room);
+        socket.emit("joinRoom", room);
+    });
+
+    socket.on("joinRoom", (data) => {
+        const roomIndex = rooms.findIndex((room) => room.id === data.id);
+        if (rooms[roomIndex].players.length < 2) {
+            rooms[roomIndex].players.push(data.player);
+            socket.emit("joinRoom", rooms[roomIndex]);
+        } else {
+            socket.emit("joinRoom", false);
+        }
+    });
+
+    socket.on("exitRoom", (data) => {
+        const roomIndex = rooms.findIndex((room) => room.id === data.id);
+        const playerIndex = rooms[roomIndex].players.findIndex(
+            (player) => player === data.player
+        );
+        rooms[roomIndex].players.splice(playerIndex);
+        if (!rooms[roomIndex].players.length) rooms.splice(roomIndex);
     });
 
     socket.on("disconnect", () => {
