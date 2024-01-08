@@ -22,18 +22,23 @@ import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
-import { IRoom } from "@/interface/interface";
+import { IPlayer, IRoom } from "@/interface/interface";
 
 const Room = ({
     joinedRoom,
     setJoinedRoom,
     socket,
+    player,
+    gameStart,
 }: {
     joinedRoom: any;
     setJoinedRoom: Function;
     socket: any;
+    player: string;
+    gameStart: Function;
 }) => {
     const [isReady, setIsReady] = useState<boolean>(false);
+    const [isMaster, setIsMaster] = useState<boolean>(false);
 
     const exitRoom = () => {
         setJoinedRoom({});
@@ -48,8 +53,9 @@ const Room = ({
     };
 
     useEffect(() => {
+        if (joinedRoom.players[0].name === player) setIsMaster(true);
+
         socket.on("roomUpdate", (room: any) => {
-            console.log(room);
             setJoinedRoom(room);
         });
     }, []);
@@ -89,14 +95,38 @@ const Room = ({
                     Exit
                 </Button>
 
+                {isMaster ? null : null}
                 <Button
                     className="w-full"
                     type="button"
-                    color={isReady ? "success" : "primary"}
+                    color={
+                        isReady
+                            ? isMaster &&
+                              joinedRoom.players.every(
+                                  (player: IPlayer) => player.isReady
+                              )
+                                ? "primary"
+                                : "success"
+                            : "primary"
+                    }
                     size="lg"
-                    onPress={readyToggle}
+                    onPress={() => {
+                        isMaster &&
+                        joinedRoom.players.every(
+                            (player: IPlayer) => player.isReady
+                        )
+                            ? gameStart()
+                            : readyToggle();
+                    }}
                 >
-                    {isReady ? "OK!" : "Ready"}
+                    {isReady
+                        ? isMaster &&
+                          joinedRoom.players.every(
+                              (player: IPlayer) => player.isReady
+                          )
+                            ? "Start!"
+                            : "OK!"
+                        : "Ready"}
                 </Button>
             </div>
         </>
@@ -153,10 +183,12 @@ const GameLobby = ({
     rooms,
     socket,
     player,
+    gameStart,
 }: {
     rooms: IRoom[];
     socket: any;
     player: string;
+    gameStart: Function;
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
@@ -187,6 +219,8 @@ const GameLobby = ({
                     joinedRoom={joinedRoom}
                     setJoinedRoom={setJoinedRoom}
                     socket={socket}
+                    player={player}
+                    gameStart={gameStart}
                 />
             ) : (
                 <>
@@ -377,6 +411,7 @@ export default () => {
                             rooms={rooms}
                             socket={socket}
                             player={player}
+                            gameStart={gameStart}
                         />
                     ) : (
                         <div className="w-[350px] max-w-full">
