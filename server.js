@@ -14,9 +14,43 @@ const io = new Server(httpServer, {
 const rooms = [];
 
 io.on("connection", (socket) => {
-    const userData = {
-        roomId: "",
+    const user = {
+        id: socket.id,
+        name: "",
+        room: {},
     };
+
+    const updateRoom = () => {
+        user.room.players.forEach((player) => {
+            socket.to(player.id).emit("roomUpdate", user.room);
+        });
+        socket.emit("roomUpdate", user.room);
+    };
+
+    const sendRooms = () => {
+        socket.emit("sendRooms", rooms);
+    };
+
+    const exitRoom = () => {
+        if (!user.room.id) return false;
+
+        const playerIndex = user.room.players.findIndex(
+            (player) => player.id === socket.id
+        );
+        user.room.players.splice(playerIndex);
+        if (!user.room.players.length) {
+            const roomIndex = rooms.findIndex(
+                (room) => room.id === user.room.id
+            );
+            rooms.splice(roomIndex);
+        }
+    };
+
+    socket.on("enter", (playerName) => {
+        user.name = playerName;
+        sendRooms();
+    });
+
     console.log("연결", socket.id);
 
     socket.on("getRoom", () => {
@@ -28,43 +62,43 @@ io.on("connection", (socket) => {
         const room = {
             id: Date.now(),
             name: roomData.roomName,
-            players: [{ id: socket.id, name: roomData.player }],
+            players: [{ id: socket.id, name: user.name, isReady: false }],
         };
         rooms.push(room);
-        userData.roomId = room.id;
+        user.room = room;
         socket.emit("joinRoom", room);
     });
 
-    socket.on("joinRoom", (data) => {
-        const roomIndex = rooms.findIndex((room) => room.id === data.id);
+    socket.on("joinRoom", (roomId) => {
+        const roomIndex = rooms.findIndex((room) => room.id === roomId);
         if (rooms[roomIndex].players.length < 2) {
-            rooms[roomIndex].players.push({ id: socket.id, name: data.player });
+            rooms[roomIndex].players.push({
+                id: user.id,
+                name: user.name,
+                isReady: false,
+            });
+            user.room = rooms[roomIndex];
+            updateRoom();
+
             socket.emit("joinRoom", rooms[roomIndex]);
         } else {
             socket.emit("joinRoom", false);
         }
     });
 
-    socket.on("exitRoom", (data) => {
-        const roomIndex = rooms.findIndex((room) => room.id === data.id);
-        const playerIndex = rooms[roomIndex].players.findIndex(
+    socket.on("exitRoom", () => exitRoom());
+
+    socket.on("ready", (isReady) => {
+        const playerIndex = user.room.players.findIndex(
             (player) => player.id === socket.id
         );
-        rooms[roomIndex].players.splice(playerIndex);
-        if (!rooms[roomIndex].players.length) rooms.splice(roomIndex);
+        user.room.players[playerIndex].isReady = isReady;
+        updateRoom();
     });
 
     socket.on("disconnect", () => {
         console.log("연결 해제", socket.id);
-        if (!userData.roomId) return false;
-        const roomIndex = rooms.findIndex(
-            (room) => room.id === userData.roomId
-        );
-        const playerIndex = rooms[roomIndex].players.findIndex(
-            (player) => player.id === socket.id
-        );
-        rooms[roomIndex].players.splice(playerIndex);
-        if (!rooms[roomIndex].players.length) rooms.splice(roomIndex);
+        exitRoom();
     });
 });
 

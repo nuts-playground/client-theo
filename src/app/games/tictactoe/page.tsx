@@ -22,39 +22,52 @@ import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
-
-interface IRoom {
-    id: number;
-    name: string;
-    players: string[];
-}
+import { IRoom } from "@/interface/interface";
 
 const Room = ({
     joinedRoom,
     setJoinedRoom,
     socket,
-    player,
 }: {
     joinedRoom: any;
     setJoinedRoom: Function;
     socket: any;
-    player: string;
 }) => {
+    const [isReady, setIsReady] = useState<boolean>(false);
+
     const exitRoom = () => {
         setJoinedRoom({});
-        socket.emit("exitRoom", {
-            id: joinedRoom.id,
-            player: player,
+        socket.emit("exitRoom");
+    };
+
+    const readyToggle = () => {
+        setIsReady((prev) => {
+            socket.emit("ready", !prev);
+            return !prev;
         });
     };
+
+    useEffect(() => {
+        socket.on("roomUpdate", (room: any) => {
+            console.log(room);
+            setJoinedRoom(room);
+        });
+    }, []);
 
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
                 {joinedRoom.players.map((player: any, index: number) => {
                     return (
-                        <div key={index}>
-                            <User className="text-nowrap" name={player.name} />
+                        <div
+                            className="flex items-center space-x-4"
+                            key={index}
+                        >
+                            <User
+                                className="text-nowrap"
+                                name={player.name}
+                                description={player.isReady ? "Ready!" : null}
+                            />
                             {index !== joinedRoom.players.length - 1 ? (
                                 <Divider
                                     className="h-4"
@@ -75,13 +88,15 @@ const Room = ({
                 >
                     Exit
                 </Button>
+
                 <Button
                     className="w-full"
                     type="button"
-                    color="primary"
+                    color={isReady ? "success" : "primary"}
                     size="lg"
+                    onPress={readyToggle}
                 >
-                    Ready
+                    {isReady ? "OK!" : "Ready"}
                 </Button>
             </div>
         </>
@@ -98,7 +113,7 @@ const RoomList = ({
     player: string;
 }) => {
     const joinRoom = (roomId: number) => {
-        socket.emit("joinRoom", { id: roomId, player: player });
+        socket.emit("joinRoom", roomId);
     };
 
     return (
@@ -172,7 +187,6 @@ const GameLobby = ({
                     joinedRoom={joinedRoom}
                     setJoinedRoom={setJoinedRoom}
                     socket={socket}
-                    player={player}
                 />
             ) : (
                 <>
@@ -301,16 +315,16 @@ export default () => {
         setWinner("");
     };
 
-    const getRoom = () => {
+    const enter = () => {
         setIsMultiplay(true);
-        socket.emit("getRoom");
+        socket.emit("enter", player);
     };
 
     useEffect(() => {
         setBoardData(createGridBoard(3, 3));
 
         const socket = io("http://localhost:3001");
-        socket.on("getRoom", (rooms) => {
+        socket.on("sendRooms", (rooms) => {
             setRooms([...rooms]);
         });
         setSocket(socket);
@@ -383,7 +397,7 @@ export default () => {
 
                                 <PopoverButton
                                     condition={Boolean(player)}
-                                    onClick={getRoom}
+                                    onClick={enter}
                                     buttonText="Multiplay"
                                     popoverTitle="The name is empty."
                                     popoverText=" Please enter your name for multiplayer."
