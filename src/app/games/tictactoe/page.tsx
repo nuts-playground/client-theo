@@ -51,17 +51,17 @@ const Room = ({
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {joinedRoom.players.map((player: string, index: number) => {
+                {joinedRoom.players.map((player: any, index: number) => {
                     return (
-                        <>
-                            <User className="text-nowrap" name={player} />
+                        <div key={index}>
+                            <User className="text-nowrap" name={player.name} />
                             {index !== joinedRoom.players.length - 1 ? (
                                 <Divider
                                     className="h-4"
                                     orientation="vertical"
                                 />
                             ) : null}
-                        </>
+                        </div>
                     );
                 })}
             </div>
@@ -119,7 +119,9 @@ const RoomList = ({
                                 <FontAwesomeIcon icon={faDoorOpen} />
                             )
                         }
-                        description={`참가자: ${room.players.join(", ")}`}
+                        description={`참가자: ${room.players
+                            .map((player: any) => player.name)
+                            .join(", ")}`}
                         onClick={() => {
                             joinRoom(room.id);
                         }}
