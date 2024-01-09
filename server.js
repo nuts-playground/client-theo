@@ -63,6 +63,8 @@ io.on("connection", (socket) => {
             id: Date.now(),
             name: roomData.roomName,
             players: [{ id: socket.id, name: user.name, isReady: false }],
+            isStart: false,
+            boardData: roomData.boardData,
         };
         rooms.push(room);
         user.room = room;
@@ -93,6 +95,17 @@ io.on("connection", (socket) => {
             (player) => player.id === socket.id
         );
         user.room.players[playerIndex].isReady = isReady;
+        updateRoom();
+    });
+
+    socket.on("start", () => {
+        user.room.isStart = true;
+        updateRoom();
+    });
+
+    socket.on("updateBoard", (boardData) => {
+        user.room.boardData = boardData;
+
         updateRoom();
     });
 

@@ -30,12 +30,16 @@ const Room = ({
     socket,
     player,
     gameStart,
+    setIsStart,
+    setBoardData,
 }: {
     joinedRoom: any;
     setJoinedRoom: Function;
     socket: any;
     player: string;
     gameStart: Function;
+    setIsStart: Function;
+    setBoardData: Function;
 }) => {
     const [isReady, setIsReady] = useState<boolean>(false);
     const [isMaster, setIsMaster] = useState<boolean>(false);
@@ -57,6 +61,8 @@ const Room = ({
 
         socket.on("roomUpdate", (room: any) => {
             setJoinedRoom(room);
+            if (room.isStart) setIsStart(true);
+            setBoardData(room.boardData);
         });
     }, []);
 
@@ -184,11 +190,17 @@ const GameLobby = ({
     socket,
     player,
     gameStart,
+    setIsStart,
+    setBoardData,
+    boardData,
 }: {
     rooms: IRoom[];
     socket: any;
     player: string;
     gameStart: Function;
+    setIsStart: Function;
+    setBoardData: Function;
+    boardData: IGameCell[][];
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
@@ -197,7 +209,11 @@ const GameLobby = ({
         setRoomName("");
         onClose();
         getRoom();
-        socket.emit("createRoom", { roomName: roomName, player: player });
+        socket.emit("createRoom", {
+            roomName: roomName,
+            player: player,
+            boardData: boardData,
+        });
     };
 
     const getRoom = () => {
@@ -205,7 +221,7 @@ const GameLobby = ({
     };
 
     useEffect(() => {
-        socket.on("joinRoom", (data: boolean | object) => {
+        socket.on("joinRoom", (data: object) => {
             if (data) {
                 setJoinedRoom(data);
             }
@@ -221,6 +237,8 @@ const GameLobby = ({
                     socket={socket}
                     player={player}
                     gameStart={gameStart}
+                    setIsStart={setIsStart}
+                    setBoardData={setBoardData}
                 />
             ) : (
                 <>
@@ -288,6 +306,7 @@ export default () => {
 
     const gameStart = () => {
         setIsStart(true);
+        socket.emit("start");
     };
 
     const changeTurn = () => {
@@ -338,6 +357,7 @@ export default () => {
             prev[y][x].player = currentPlayer;
             changeTurn();
             checkGameOver();
+            socket.emit("updateBoard", [...prev]);
             return [...prev];
         });
     };
@@ -412,6 +432,9 @@ export default () => {
                             socket={socket}
                             player={player}
                             gameStart={gameStart}
+                            setIsStart={setIsStart}
+                            setBoardData={setBoardData}
+                            boardData={boardData}
                         />
                     ) : (
                         <div className="w-[350px] max-w-full">
