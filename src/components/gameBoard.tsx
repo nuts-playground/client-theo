@@ -20,7 +20,7 @@ export const GameBoard = ({ gridBoard, cellClick, isStart }: IGameBoard) => {
     return (
         <table>
             <tbody className="rounded overflow-hidden">
-                {gridBoard.map((y: IGameCell[], yIndex: number) => {
+                {gridBoard?.map((y: IGameCell[], yIndex: number) => {
                     const row = y.map((x: IGameCell, xIndex: number) => {
                         return (
                             <td

@@ -25,51 +25,49 @@ import PopoverButton from "@/components/popoverButton";
 import { IPlayer, IRoom } from "@/interface/interface";
 
 const Room = ({
-    joinedRoom,
-    setJoinedRoom,
+    room,
+    setRoom,
     socket,
     player,
     gameStart,
-    setIsStart,
-    setBoardData,
 }: {
-    joinedRoom: any;
-    setJoinedRoom: Function;
+    room: IRoom;
+    setRoom: Function;
     socket: any;
     player: string;
     gameStart: Function;
-    setIsStart: Function;
-    setBoardData: Function;
 }) => {
     const [isReady, setIsReady] = useState<boolean>(false);
     const [isMaster, setIsMaster] = useState<boolean>(false);
 
     const exitRoom = () => {
-        setJoinedRoom({});
         socket.emit("exitRoom");
     };
 
     const readyToggle = () => {
-        setIsReady((prev) => {
-            socket.emit("ready", !prev);
-            return !prev;
+        const playerIndex = room.players?.findIndex(
+            (roomPlayer) => roomPlayer.name === player
+        );
+
+        setIsReady((prevIsReady) => {
+            setRoom((prevRoom: IRoom) => {
+                prevRoom.players[playerIndex].isReady = !prevIsReady;
+                socket.emit("sendRoom", prevRoom);
+                return prevRoom;
+            });
+            return !prevIsReady;
         });
     };
 
     useEffect(() => {
-        if (joinedRoom.players[0].name === player) setIsMaster(true);
-
-        socket.on("roomUpdate", (room: any) => {
-            setJoinedRoom(room);
-            if (room.isStart) setIsStart(true);
-            setBoardData(room.boardData);
-        });
+        if (Array.isArray(room.players) && room.players[0]?.name === player)
+            setIsMaster(true);
     }, []);
 
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {joinedRoom.players.map((player: any, index: number) => {
+                {room.players?.map((player, index: number) => {
                     return (
                         <div
                             className="flex items-center space-x-4"
@@ -80,7 +78,7 @@ const Room = ({
                                 name={player.name}
                                 description={player.isReady ? "Ready!" : null}
                             />
-                            {index !== joinedRoom.players.length - 1 ? (
+                            {index !== (room.players?.length ?? 0) - 1 ? (
                                 <Divider
                                     className="h-4"
                                     orientation="vertical"
@@ -108,7 +106,7 @@ const Room = ({
                     color={
                         isReady
                             ? isMaster &&
-                              joinedRoom.players.every(
+                              room.players?.every(
                                   (player: IPlayer) => player.isReady
                               )
                                 ? "primary"
@@ -118,16 +116,14 @@ const Room = ({
                     size="lg"
                     onPress={() => {
                         isMaster &&
-                        joinedRoom.players.every(
-                            (player: IPlayer) => player.isReady
-                        )
+                        room.players?.every((player: IPlayer) => player.isReady)
                             ? gameStart()
                             : readyToggle();
                     }}
                 >
                     {isReady
                         ? isMaster &&
-                          joinedRoom.players.every(
+                          room.players?.every(
                               (player: IPlayer) => player.isReady
                           )
                             ? "Start!"
@@ -140,16 +136,19 @@ const Room = ({
 };
 
 const RoomList = ({
-    rooms,
+    roomList,
     socket,
     player,
 }: {
-    rooms: IRoom[];
+    roomList: IRoom[];
     socket: any;
     player: string;
 }) => {
     const joinRoom = (roomId: number) => {
-        socket.emit("joinRoom", roomId);
+        socket.emit("joinRoom", {
+            id: roomId,
+            player: player,
+        });
     };
 
     return (
@@ -158,7 +157,7 @@ const RoomList = ({
             aria-label="Actions"
             emptyContent="There are currently no rooms available. Please make a room."
         >
-            {rooms.map((room: any, index: number) => {
+            {roomList.map((room: any, index: number) => {
                 const isFull = room.players.length === 2;
                 return (
                     <ListboxItem
@@ -186,63 +185,49 @@ const RoomList = ({
 };
 
 const GameLobby = ({
-    rooms,
+    roomList,
+    room,
+    setRoom,
     socket,
     player,
     gameStart,
-    setIsStart,
-    setBoardData,
-    boardData,
 }: {
-    rooms: IRoom[];
+    roomList: IRoom[];
+    room: IRoom;
+    setRoom: Function;
     socket: any;
     player: string;
     gameStart: Function;
-    setIsStart: Function;
-    setBoardData: Function;
-    boardData: IGameCell[][];
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
-    const [joinedRoom, setJoinedRoom] = useState<any>({});
     const createRoom = () => {
         setRoomName("");
         onClose();
-        getRoom();
         socket.emit("createRoom", {
             roomName: roomName,
             player: player,
-            boardData: boardData,
+            boardData: createGridBoard(3, 3),
         });
     };
-
-    const getRoom = () => {
-        socket.emit("getRoom");
-    };
-
-    useEffect(() => {
-        socket.on("joinRoom", (data: object) => {
-            if (data) {
-                setJoinedRoom(data);
-            }
-        });
-    }, []);
 
     return (
         <div>
-            {joinedRoom.id ? (
+            {room.id ? (
                 <Room
-                    joinedRoom={joinedRoom}
-                    setJoinedRoom={setJoinedRoom}
+                    room={room}
+                    setRoom={setRoom}
                     socket={socket}
                     player={player}
                     gameStart={gameStart}
-                    setIsStart={setIsStart}
-                    setBoardData={setBoardData}
                 />
             ) : (
                 <>
-                    <RoomList rooms={rooms} socket={socket} player={player} />
+                    <RoomList
+                        roomList={roomList}
+                        socket={socket}
+                        player={player}
+                    />
                     <Button
                         className="w-full"
                         type="button"
@@ -294,19 +279,27 @@ const GameLobby = ({
 };
 
 export default () => {
-    const [boardData, setBoardData] = useState<IGameCell[][]>([[]]);
     const [players, setPlayers] = useState<string[]>(["O", "X"]);
     const [currentPlayer, setCurrentPlayer] = useState<string>(players[0]);
-    const [isStart, setIsStart] = useState<Boolean>(false);
     const [winner, setWinner] = useState<string>("");
     const [player, setPlayer] = useState<string>("");
-    const [isMultiplay, setIsMultiplay] = useState<boolean>(false);
-    const [rooms, setRooms] = useState<any>([]);
+    const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
+    const [room, setRoom] = useState<any>({});
+
+    const joinGame = () => {
+        const socket = io("http://localhost:3001");
+        socket.on("sendRooms", (roomList) => setRoomList(roomList));
+        socket.on("sendRoom", (room) => setRoom(room));
+        setSocket(socket);
+    };
 
     const gameStart = () => {
-        setIsStart(true);
-        socket.emit("start");
+        setRoom((prev: IRoom) => {
+            prev.isStart = true;
+            socket.emit("sendRoom", prev);
+            return prev;
+        });
     };
 
     const changeTurn = () => {
@@ -315,7 +308,7 @@ export default () => {
         });
     };
 
-    const checkGameOver = () => {
+    const checkGameOver = (boardData: IGameCell[][]) => {
         const lineArray = [
             // 가로 3줄
             [boardData[0][0], boardData[0][1], boardData[0][2]],
@@ -340,57 +333,40 @@ export default () => {
             }
         }
 
-        let cellArray = boardData.reduce(function (prev, next) {
+        let cellArray = boardData.reduce(function (
+            prev: IGameCell[],
+            next: IGameCell[]
+        ) {
             return prev.concat(next);
         });
 
-        if (cellArray.every((cell) => cell.value)) {
+        if (cellArray.every((cell: IGameCell) => cell.value)) {
             setWinner("drow");
         }
     };
 
     const onClick = (y: number, x: number) => {
-        if (boardData[y][x].value) return false;
-
-        setBoardData((prev: IGameCell[][]) => {
-            prev[y][x].value = true;
-            prev[y][x].player = currentPlayer;
-            changeTurn();
-            checkGameOver();
-            socket.emit("updateBoard", [...prev]);
-            return [...prev];
+        if (room.boardData[y][x].value) return false;
+        setRoom((prev: IRoom) => {
+            prev.boardData[y][x].value = true;
+            prev.boardData[y][x].player = player;
+            socket.emit("sendRoom", prev);
+            return prev;
         });
     };
 
     const resetBoard = () => {
-        setIsStart(false);
         setCurrentPlayer(players[0]);
-        setBoardData(createGridBoard(3, 3));
         setWinner("");
     };
-
-    const enter = () => {
-        setIsMultiplay(true);
-        socket.emit("enter", player);
-    };
-
-    useEffect(() => {
-        setBoardData(createGridBoard(3, 3));
-
-        const socket = io("http://localhost:3001");
-        socket.on("sendRooms", (rooms) => {
-            setRooms([...rooms]);
-        });
-        setSocket(socket);
-    }, []);
 
     return (
         <>
             <GameSection>
                 <GameBoard
-                    gridBoard={boardData}
+                    gridBoard={room.boardData}
                     cellClick={onClick}
-                    isStart={isStart}
+                    isStart={room.isStart}
                 ></GameBoard>
             </GameSection>
             <StatusSection
@@ -400,7 +376,7 @@ export default () => {
                 }
             >
                 <>
-                    {isStart ? (
+                    {room.isStart ? (
                         <div className="flex items-end text-6xl font-bold">
                             <span className="relative">
                                 {players[0]}
@@ -426,15 +402,14 @@ export default () => {
                         </div>
                     ) : null}
 
-                    {isMultiplay ? (
+                    {socket?.connected ? (
                         <GameLobby
-                            rooms={rooms}
+                            roomList={roomList}
+                            room={room}
+                            setRoom={setRoom}
                             socket={socket}
                             player={player}
                             gameStart={gameStart}
-                            setIsStart={setIsStart}
-                            setBoardData={setBoardData}
-                            boardData={boardData}
                         />
                     ) : (
                         <div className="w-[350px] max-w-full">
@@ -455,21 +430,12 @@ export default () => {
 
                                 <PopoverButton
                                     condition={Boolean(player)}
-                                    onClick={enter}
-                                    buttonText="Multiplay"
+                                    onClick={joinGame}
+                                    buttonText="Join"
                                     popoverTitle="The name is empty."
                                     popoverText=" Please enter your name for multiplayer."
                                 />
                             </div>
-                            <Button
-                                className="w-full"
-                                onClick={gameStart}
-                                color="primary"
-                                type="button"
-                                size="lg"
-                            >
-                                Local play
-                            </Button>
                         </div>
                     )}
 

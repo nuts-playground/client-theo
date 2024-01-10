@@ -20,6 +20,15 @@ io.on("connection", (socket) => {
         room: {},
     };
 
+    const sendRoom = () => {
+        console.log(user.room);
+        user.room.players.forEach((player) => {
+            console.log(player);
+            socket.to(player.id).emit("sendRoom", user.room);
+        });
+        socket.emit("sendRoom", user.room);
+    };
+
     const updateRoom = () => {
         user.room.players.forEach((player) => {
             socket.to(player.id).emit("roomUpdate", user.room);
@@ -59,32 +68,29 @@ io.on("connection", (socket) => {
     });
 
     socket.on("createRoom", (roomData) => {
+        console.log(roomData.boardData);
         const room = {
             id: Date.now(),
             name: roomData.roomName,
-            players: [{ id: socket.id, name: user.name, isReady: false }],
+            players: [{ id: socket.id, name: roomData.player, isReady: false }],
             isStart: false,
             boardData: roomData.boardData,
         };
         rooms.push(room);
         user.room = room;
-        socket.emit("joinRoom", room);
+        sendRoom();
     });
 
-    socket.on("joinRoom", (roomId) => {
-        const roomIndex = rooms.findIndex((room) => room.id === roomId);
+    socket.on("joinRoom", (roomData) => {
+        const roomIndex = rooms.findIndex((room) => room.id === roomData.id);
         if (rooms[roomIndex].players.length < 2) {
             rooms[roomIndex].players.push({
                 id: user.id,
-                name: user.name,
+                name: roomData.player,
                 isReady: false,
             });
             user.room = rooms[roomIndex];
-            updateRoom();
-
-            socket.emit("joinRoom", rooms[roomIndex]);
-        } else {
-            socket.emit("joinRoom", false);
+            sendRoom();
         }
     });
 
@@ -109,10 +115,17 @@ io.on("connection", (socket) => {
         updateRoom();
     });
 
+    socket.on("sendRoom", (room) => {
+        user.room = room;
+        sendRoom();
+    });
+
     socket.on("disconnect", () => {
         console.log("연결 해제", socket.id);
         exitRoom();
     });
+
+    sendRooms();
 });
 
 const PORT = process.env.PORT || 3001;
