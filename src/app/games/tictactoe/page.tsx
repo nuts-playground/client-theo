@@ -299,19 +299,15 @@ export default () => {
     const [playerName, setPlayerName] = useState<string>("");
 
     const joinGame = () => {
-        const socket = io("http://localhost:3001");
         setPlayer({
             id: socket.id as string,
             name: playerName,
             isReady: false,
         });
-        socket.on("sendRooms", (roomList) => setRoomList(roomList));
-        socket.on("sendRoom", (roomData) => {
-            setRoom(roomData);
-            console.log(roomData);
-            console.log("ddd");
-        });
+        socket.on("sendRooms", (roomList: IRoom[]) => setRoomList(roomList));
+        socket.on("sendRoom", (roomData: IRoom[]) => setRoom(roomData));
         setSocket(socket);
+        socket.emit("sendRooms", "");
     };
 
     const gameStart = () => {
@@ -386,6 +382,11 @@ export default () => {
         setWinner("");
     };
 
+    useEffect(() => {
+        const socket = io("http://localhost:3001");
+        setSocket(socket);
+    }, []);
+
     return (
         <>
             <GameSection>
@@ -428,7 +429,7 @@ export default () => {
                         </div>
                     ) : null}
 
-                    {socket?.connected ? (
+                    {player.id ? (
                         <GameLobby
                             roomList={roomList}
                             room={room}
