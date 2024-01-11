@@ -34,7 +34,7 @@ const Room = ({
     room: IRoom;
     setRoom: Function;
     socket: any;
-    player: string;
+    player: IPlayer;
     gameStart: Function;
 }) => {
     const [isReady, setIsReady] = useState<boolean>(false);
@@ -46,7 +46,7 @@ const Room = ({
 
     const readyToggle = () => {
         const playerIndex = room.players?.findIndex(
-            (roomPlayer) => roomPlayer.name === player
+            (roomPlayer) => roomPlayer.name === player.name
         );
 
         setIsReady((prevIsReady) => {
@@ -60,7 +60,10 @@ const Room = ({
     };
 
     useEffect(() => {
-        if (Array.isArray(room.players) && room.players[0]?.name === player)
+        if (
+            Array.isArray(room.players) &&
+            room.players[0]?.name === player.name
+        )
             setIsMaster(true);
     }, []);
 
@@ -78,7 +81,7 @@ const Room = ({
                                 name={player.name}
                                 description={player.isReady ? "Ready!" : null}
                             />
-                            {index !== (room.players?.length ?? 0) - 1 ? (
+                            {index !== room.players.length - 1 ? (
                                 <Divider
                                     className="h-4"
                                     orientation="vertical"
@@ -88,49 +91,53 @@ const Room = ({
                     );
                 })}
             </div>
-            <div className="flex space-x-2">
-                <Button
-                    className="w-full"
-                    type="button"
-                    color="default"
-                    size="lg"
-                    onPress={exitRoom}
-                >
-                    Exit
-                </Button>
+            {room.isStart ? null : (
+                <div className="flex space-x-2">
+                    <Button
+                        className="w-full"
+                        type="button"
+                        color="default"
+                        size="lg"
+                        onPress={exitRoom}
+                    >
+                        Exit
+                    </Button>
 
-                {isMaster ? null : null}
-                <Button
-                    className="w-full"
-                    type="button"
-                    color={
-                        isReady
+                    {isMaster ? null : null}
+                    <Button
+                        className="w-full"
+                        type="button"
+                        color={
+                            isReady
+                                ? isMaster &&
+                                  room.players?.every(
+                                      (player: IPlayer) => player.isReady
+                                  )
+                                    ? "primary"
+                                    : "success"
+                                : "primary"
+                        }
+                        size="lg"
+                        onPress={() => {
+                            isMaster &&
+                            room.players?.every(
+                                (player: IPlayer) => player.isReady
+                            )
+                                ? gameStart()
+                                : readyToggle();
+                        }}
+                    >
+                        {isReady
                             ? isMaster &&
                               room.players?.every(
                                   (player: IPlayer) => player.isReady
                               )
-                                ? "primary"
-                                : "success"
-                            : "primary"
-                    }
-                    size="lg"
-                    onPress={() => {
-                        isMaster &&
-                        room.players?.every((player: IPlayer) => player.isReady)
-                            ? gameStart()
-                            : readyToggle();
-                    }}
-                >
-                    {isReady
-                        ? isMaster &&
-                          room.players?.every(
-                              (player: IPlayer) => player.isReady
-                          )
-                            ? "Start!"
-                            : "OK!"
-                        : "Ready"}
-                </Button>
-            </div>
+                                ? "Start!"
+                                : "OK!"
+                            : "Ready"}
+                    </Button>
+                </div>
+            )}
         </>
     );
 };
@@ -142,7 +149,7 @@ const RoomList = ({
 }: {
     roomList: IRoom[];
     socket: any;
-    player: string;
+    player: IPlayer;
 }) => {
     const joinRoom = (roomId: number) => {
         socket.emit("joinRoom", {
@@ -157,7 +164,7 @@ const RoomList = ({
             aria-label="Actions"
             emptyContent="There are currently no rooms available. Please make a room."
         >
-            {roomList.map((room: any, index: number) => {
+            {roomList.map((room: IRoom, index: number) => {
                 const isFull = room.players.length === 2;
                 return (
                     <ListboxItem
@@ -196,7 +203,7 @@ const GameLobby = ({
     room: IRoom;
     setRoom: Function;
     socket: any;
-    player: string;
+    player: IPlayer;
     gameStart: Function;
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -204,10 +211,12 @@ const GameLobby = ({
     const createRoom = () => {
         setRoomName("");
         onClose();
+        console.log(player);
         socket.emit("createRoom", {
-            roomName: roomName,
+            name: roomName,
             player: player,
             boardData: createGridBoard(3, 3),
+            currentTurn: player.name,
         });
     };
 
@@ -282,15 +291,26 @@ export default () => {
     const [players, setPlayers] = useState<string[]>(["O", "X"]);
     const [currentPlayer, setCurrentPlayer] = useState<string>(players[0]);
     const [winner, setWinner] = useState<string>("");
-    const [player, setPlayer] = useState<string>("");
+    const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
     const [room, setRoom] = useState<any>({});
 
+    const [playerName, setPlayerName] = useState<string>("");
+
     const joinGame = () => {
         const socket = io("http://localhost:3001");
+        setPlayer({
+            id: socket.id as string,
+            name: playerName,
+            isReady: false,
+        });
         socket.on("sendRooms", (roomList) => setRoomList(roomList));
-        socket.on("sendRoom", (room) => setRoom(room));
+        socket.on("sendRoom", (roomData) => {
+            setRoom(roomData);
+            console.log(roomData);
+            console.log("ddd");
+        });
         setSocket(socket);
     };
 
@@ -347,9 +367,15 @@ export default () => {
 
     const onClick = (y: number, x: number) => {
         if (room.boardData[y][x].value) return false;
+        if (room.currentTurn !== player) return false;
         setRoom((prev: IRoom) => {
             prev.boardData[y][x].value = true;
-            prev.boardData[y][x].player = player;
+            prev.boardData[y][x].player =
+                room.players[0].name === player ? "O" : "X";
+            prev.currentTurn =
+                room.players[0].name === player
+                    ? room.players[1]
+                    : room.players[0];
             socket.emit("sendRoom", prev);
             return prev;
         });
@@ -419,12 +445,12 @@ export default () => {
                                     type="text"
                                     color="primary"
                                     size="sm"
-                                    value={player}
+                                    value={playerName}
                                     placeholder="Enter your name and join"
                                     onChange={(
                                         e: React.ChangeEvent<HTMLInputElement>
                                     ) => {
-                                        setPlayer(e.target.value);
+                                        setPlayerName(e.target.value);
                                     }}
                                 />
 

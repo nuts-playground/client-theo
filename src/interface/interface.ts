@@ -7,9 +7,10 @@ export interface IPlayer {
 }
 
 export interface IRoom {
-    id?: number;
-    name?: string;
+    id: number;
+    name: string;
     players: IPlayer[];
-    isStart?: boolean;
+    isStart: boolean;
     boardData: IGameCell[][];
+    currentTurn: string | undefined;
 }

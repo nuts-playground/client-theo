@@ -23,9 +23,10 @@ io.on("connection", (socket) => {
     const sendRoom = () => {
         console.log(user.room);
         user.room.players.forEach((player) => {
-            console.log(player);
+            console.log("이사람", player);
             socket.to(player.id).emit("sendRoom", user.room);
         });
+        console.log("이걸 보내", user.room);
         socket.emit("sendRoom", user.room);
     };
 
@@ -55,40 +56,30 @@ io.on("connection", (socket) => {
         }
     };
 
-    socket.on("enter", (playerName) => {
-        user.name = playerName;
-        sendRooms();
-    });
-
-    console.log("연결", socket.id);
-
     socket.on("getRoom", () => {
         console.log("입장");
         socket.emit("getRoom", rooms);
     });
 
-    socket.on("createRoom", (roomData) => {
-        console.log(roomData.boardData);
-        const room = {
+    socket.on("createRoom", (room) => {
+        const newRoom = {
             id: Date.now(),
-            name: roomData.roomName,
-            players: [{ id: socket.id, name: roomData.player, isReady: false }],
+            name: room.name,
+            players: [room.player],
             isStart: false,
-            boardData: roomData.boardData,
+            boardData: room.boardData,
+            currentTurn: room.currentTurn,
         };
-        rooms.push(room);
-        user.room = room;
+        rooms.push(newRoom);
+        user.room = newRoom;
         sendRoom();
     });
 
     socket.on("joinRoom", (roomData) => {
         const roomIndex = rooms.findIndex((room) => room.id === roomData.id);
+
         if (rooms[roomIndex].players.length < 2) {
-            rooms[roomIndex].players.push({
-                id: user.id,
-                name: roomData.player,
-                isReady: false,
-            });
+            rooms[roomIndex].players.push(roomData.player);
             user.room = rooms[roomIndex];
             sendRoom();
         }
