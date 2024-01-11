@@ -307,7 +307,7 @@ export default () => {
         socket.on("sendRooms", (roomList: IRoom[]) => setRoomList(roomList));
         socket.on("sendRoom", (roomData: IRoom[]) => setRoom(roomData));
         setSocket(socket);
-        socket.emit("sendRooms", "");
+        socket.emit("getRooms");
     };
 
     const gameStart = () => {
@@ -315,12 +315,6 @@ export default () => {
             prev.isStart = true;
             socket.emit("sendRoom", prev);
             return prev;
-        });
-    };
-
-    const changeTurn = () => {
-        setCurrentPlayer((prev) => {
-            return prev === players[0] ? players[1] : players[0];
         });
     };
 
@@ -363,16 +357,17 @@ export default () => {
 
     const onClick = (y: number, x: number) => {
         if (room.boardData[y][x].value) return false;
-        if (room.currentTurn !== player) return false;
+        if (room.currentTurn !== player.name) return false;
         setRoom((prev: IRoom) => {
             prev.boardData[y][x].value = true;
             prev.boardData[y][x].player =
-                room.players[0].name === player ? "O" : "X";
+                prev.players[0].name === player.name ? "O" : "X";
             prev.currentTurn =
-                room.players[0].name === player
-                    ? room.players[1]
-                    : room.players[0];
+                prev.currentTurn === prev.players[0].name
+                    ? prev.players[1].name
+                    : prev.players[0].name;
             socket.emit("sendRoom", prev);
+            checkGameOver(prev.boardData);
             return prev;
         });
     };
