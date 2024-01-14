@@ -301,6 +301,7 @@ export default () => {
             id: socket.id as string,
             name: playerName,
             isReady: false,
+            location: "Lobby",
         });
         socket.on("sendRooms", (roomList: IRoom[]) => setRoomList(roomList));
         socket.on("sendRoom", (roomData: IRoom) => setRoom(roomData));

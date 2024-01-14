@@ -16,6 +16,15 @@ const rooms: IRoom[] = [];
 const players: IPlayer[] = [];
 
 io.on("connection", (socket) => {
+    let room: IRoom = {} as IRoom;
+
+    const sendPlayers = () => {
+        players.forEach((player) =>
+            socket.to(player.id).emit("sendPlayers", players)
+        );
+        socket.emit("sendPlayers", players);
+    };
+
     socket.on("joinPlayground", (playerName) => {
         const hasPlayer = players.some((player) => player.name === playerName);
 
@@ -24,13 +33,13 @@ io.on("connection", (socket) => {
                 id: socket.id,
                 name: playerName,
                 isReady: false, // TODO: 플레이어의 준비 상태는 room 객체에서 관리하도록 수정 필요
+                location: "Lobby",
             });
             console.log("유저 등록 성공", players);
         }
+        sendPlayers();
         socket.emit("joinPlayground", !hasPlayer);
     });
-
-    let room: IRoom = {} as IRoom;
 
     const sendRoom = () => {
         room.players.forEach((player) => {
@@ -86,7 +95,14 @@ io.on("connection", (socket) => {
 
     socket.on("getRooms", () => sendRooms());
 
-    socket.on("disconnect", () => exitRoom());
+    socket.on("disconnect", () => {
+        const playerIndex = players.findIndex(
+            (player) => player.id === socket.id
+        );
+        players.splice(playerIndex);
+        sendPlayers();
+        exitRoom();
+    });
 });
 
 const PORT = process.env.PORT || 3001;

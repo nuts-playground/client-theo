@@ -4,6 +4,7 @@ export interface IPlayer {
     id: string;
     name: string;
     isReady: boolean;
+    location: "Lobby" | "";
 }
 
 export interface IRoom {
