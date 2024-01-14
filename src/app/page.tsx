@@ -5,6 +5,7 @@ import StatusSection from "@/components/statusSection";
 import {
     Input,
     Button,
+    ButtonGroup,
     Modal,
     ModalContent,
     ModalHeader,
@@ -14,9 +15,10 @@ import {
     Listbox,
     ListboxItem,
     User,
+    Popover,
+    PopoverTrigger,
+    PopoverContent,
 } from "@nextui-org/react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useForm } from "react-hook-form";
@@ -74,19 +76,42 @@ const JoinModal = ({ handleSubmit, onSubmit, register }: IJoinCard) => {
 const PlayerList = ({ players }: { players: IPlayer[] }) => {
     return (
         <section>
-            <h3 className="mb-1 pl-1 text-xl font-bold">실시간 접속자</h3>
+            <h3 className="mb-1 pl-1 text-xl font-bold">Online players</h3>
             <Listbox
                 className="mb-2 gap-0 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium"
                 aria-label="Actions"
-                emptyContent="There are currently no rooms available. Please make a room."
+                emptyContent="There are no players currently online."
             >
                 {players.map((player) => {
                     return (
                         <ListboxItem key={player.id}>
-                            <User
-                                name={player.name}
-                                description={`Location: ${player.location}`}
-                            />
+                            <Popover showArrow placement="bottom">
+                                <PopoverTrigger>
+                                    <User
+                                        className="w-full justify-start"
+                                        name={`${player.name}`}
+                                        description={`Location: ${player.location}`}
+                                    />
+                                </PopoverTrigger>
+                                <PopoverContent className="p-1">
+                                    <ButtonGroup>
+                                        <Button
+                                            color="primary"
+                                            type="button"
+                                            size="sm"
+                                        >
+                                            Join the room
+                                        </Button>
+                                        <Button
+                                            color="primary"
+                                            type="button"
+                                            size="sm"
+                                        >
+                                            Send message
+                                        </Button>
+                                    </ButtonGroup>
+                                </PopoverContent>
+                            </Popover>
                         </ListboxItem>
                     );
                 })}
@@ -130,11 +155,13 @@ export default function Home() {
             <StatusSection>
                 <>
                     <PlayerList players={players} />
-                    <JoinModal
-                        handleSubmit={handleSubmit}
-                        onSubmit={onSubmit}
-                        register={register}
-                    />
+                    {player.id ? null : (
+                        <JoinModal
+                            handleSubmit={handleSubmit}
+                            onSubmit={onSubmit}
+                            register={register}
+                        />
+                    )}
                 </>
             </StatusSection>
         </>
