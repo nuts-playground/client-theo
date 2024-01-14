@@ -217,6 +217,7 @@ const GameLobby = ({
             player: player,
             boardData: createGridBoard(3, 3),
             currentTurn: player.name,
+            winner: "",
         });
     };
 
@@ -294,7 +295,7 @@ export default () => {
     const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
-    const [room, setRoom] = useState<any>({});
+    const [room, setRoom] = useState<IRoom>({} as IRoom);
 
     const [playerName, setPlayerName] = useState<string>("");
 
@@ -305,7 +306,7 @@ export default () => {
             isReady: false,
         });
         socket.on("sendRooms", (roomList: IRoom[]) => setRoomList(roomList));
-        socket.on("sendRoom", (roomData: IRoom[]) => setRoom(roomData));
+        socket.on("sendRoom", (roomData: IRoom) => setRoom(roomData));
         setSocket(socket);
         socket.emit("getRooms");
     };
@@ -338,8 +339,7 @@ export default () => {
                     (item) => item.player.trim() === currentPlayer.trim()
                 )
             ) {
-                setWinner(currentPlayer);
-                return;
+                return player.name;
             }
         }
 
@@ -351,11 +351,14 @@ export default () => {
         });
 
         if (cellArray.every((cell: IGameCell) => cell.value)) {
-            setWinner("drow");
+            return "drow";
         }
+
+        return "";
     };
 
     const onClick = (y: number, x: number) => {
+        console.log("실행");
         if (room.boardData[y][x].value) return false;
         if (room.currentTurn !== player.name) return false;
         setRoom((prev: IRoom) => {
@@ -366,8 +369,8 @@ export default () => {
                 prev.currentTurn === prev.players[0].name
                     ? prev.players[1].name
                     : prev.players[0].name;
+            prev.winner = checkGameOver(prev.boardData);
             socket.emit("sendRoom", prev);
-            checkGameOver(prev.boardData);
             return prev;
         });
     };
@@ -461,7 +464,10 @@ export default () => {
                         </div>
                     )}
 
-                    {players.some((player) => player === winner) ? (
+                    {room.players?.some((player) => {
+                        console.log(room);
+                        return player.name === room.winner;
+                    }) ? (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -473,7 +479,7 @@ export default () => {
                                 layoutId="player"
                                 className="relative px-8 py-4 text-6xl font-bold bg-gray-200 rounded-lg border-4 border-gray-900"
                             >
-                                {winner}'s victory
+                                {room.winner}'s victory
                                 <motion.button
                                     initial={{ opacity: 0, y: -40 }}
                                     animate={{ opacity: 1, y: 70 }}
@@ -488,7 +494,7 @@ export default () => {
                         </motion.div>
                     ) : null}
 
-                    {winner === "drow" ? (
+                    {room.winner === "drow" ? (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}

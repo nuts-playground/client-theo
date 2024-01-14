@@ -13,4 +13,5 @@ export interface IRoom {
     isStart: boolean;
     boardData: IGameCell[][];
     currentTurn: string | undefined;
+    winner: string | "drow" | "";
 }

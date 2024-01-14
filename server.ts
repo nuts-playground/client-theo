@@ -46,6 +46,7 @@ io.on("connection", (socket) => {
         room.isStart = false;
         room.boardData = roomData.boardData;
         room.currentTurn = roomData.currentTurn;
+        room.winner = roomData.winner;
 
         rooms.push(room);
         sendRoom();
