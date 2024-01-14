@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { IRoom } from "@/interface/interface";
+import { IPlayer, IRoom } from "@/interface/interface";
 
 const httpServer = http.createServer();
 
@@ -13,8 +13,23 @@ const io = new Server(httpServer, {
 });
 
 const rooms: IRoom[] = [];
+const players: IPlayer[] = [];
 
 io.on("connection", (socket) => {
+    socket.on("joinPlayground", (playerName) => {
+        const hasPlayer = players.some((player) => player.name === playerName);
+
+        if (!hasPlayer) {
+            players.push({
+                id: socket.id,
+                name: playerName,
+                isReady: false, // TODO: 플레이어의 준비 상태는 room 객체에서 관리하도록 수정 필요
+            });
+            console.log("유저 등록 성공", players);
+        }
+        socket.emit("joinPlayground", !hasPlayer);
+    });
+
     let room: IRoom = {} as IRoom;
 
     const sendRoom = () => {

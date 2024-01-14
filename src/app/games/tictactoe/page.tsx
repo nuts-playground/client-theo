@@ -289,9 +289,6 @@ const GameLobby = ({
 };
 
 export default () => {
-    const [players, setPlayers] = useState<string[]>(["O", "X"]);
-    const [currentPlayer, setCurrentPlayer] = useState<string>(players[0]);
-    const [winner, setWinner] = useState<string>("");
     const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
@@ -336,7 +333,7 @@ export default () => {
         for (let i = 0; i < lineArray.length; i++) {
             if (
                 lineArray[i].every(
-                    (item) => item.player.trim() === currentPlayer.trim()
+                    (item) => item.player.trim() === room.currentTurn.trim()
                 )
             ) {
                 return player.name;
@@ -375,10 +372,7 @@ export default () => {
         });
     };
 
-    const resetBoard = () => {
-        setCurrentPlayer(players[0]);
-        setWinner("");
-    };
+    const resetBoard = () => {};
 
     useEffect(() => {
         const socket = io("http://localhost:3001");
@@ -401,7 +395,7 @@ export default () => {
                 }
             >
                 <>
-                    {room.isStart ? (
+                    {/* {room.isStart ? (
                         <div className="flex items-end text-6xl font-bold">
                             <span className="relative">
                                 {players[0]}
@@ -425,7 +419,7 @@ export default () => {
                                 ) : null}
                             </span>
                         </div>
-                    ) : null}
+                    ) : null} */}
 
                     {player.id ? (
                         <GameLobby
