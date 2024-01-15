@@ -23,6 +23,8 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useForm } from "react-hook-form";
 import { IPlayer } from "@/interface/interface";
+import { useAppSelector, useAppDispatch } from "./redux/hook";
+import { setPlayer, selectPlayer } from "./redux/playerSlice";
 
 interface IJoinCard {
     handleSubmit: Function;
@@ -32,10 +34,11 @@ interface IJoinCard {
 
 const JoinModal = ({ handleSubmit, onSubmit, register }: IJoinCard) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-
+    const player = useAppSelector((state) => state.player);
     useEffect(() => {
         onOpen();
     }, []);
+
     return (
         <>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
@@ -121,10 +124,14 @@ const PlayerList = ({ players }: { players: IPlayer[] }) => {
 };
 
 export default function Home() {
-    const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
+    // const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [socket, setSocket] = useState<any>({});
     const [players, setPlayers] = useState<IPlayer[]>([]);
     const { register, handleSubmit, watch } = useForm();
+
+    const player = useAppSelector((state) => state.player);
+    console.log(player);
+    const dispatch = useAppDispatch();
 
     const onSubmit = () => {
         socket.emit("joinPlayground", watch("playerName"));
@@ -132,16 +139,17 @@ export default function Home() {
 
     useEffect(() => {
         const socket = io("http://localhost:3001");
-
         socket.on("sendPlayers", (players) => setPlayers(players));
         socket.on("joinPlayground", (isSuccess) => {
             if (isSuccess) {
-                setPlayer({
-                    id: socket.id as string,
-                    name: watch("playerName"),
-                    isReady: false,
-                    location: "Lobby",
-                });
+                dispatch(
+                    setPlayer({
+                        id: socket.id as string,
+                        name: watch("playerName"),
+                        isReady: false,
+                        location: "Lobby",
+                    })
+                );
             }
         });
         setSocket(socket);
@@ -154,6 +162,7 @@ export default function Home() {
             </GameSection>
             <StatusSection>
                 <>
+                    {/* <div>{testPlayer}</div> */}
                     <PlayerList players={players} />
                     {player.id ? null : (
                         <JoinModal
