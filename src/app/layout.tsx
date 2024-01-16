@@ -1,5 +1,5 @@
 "use client";
-import type { Metadata } from "next";
+// import type { Metadata } from "next";
 import { Orbit } from "next/font/google";
 import Link from "next/link";
 import { NextUIProvider } from "@nextui-org/react";
@@ -12,6 +12,7 @@ import { setPlayer } from "./redux/playerSlice";
 import { setSocket } from "./redux/socketSlice";
 import "./globals.css";
 import { setPlayers } from "./redux/playersSlice";
+import { setRooms } from "./redux/roomsSlice";
 
 const orbit = Orbit({
     subsets: ["latin"],
@@ -33,6 +34,9 @@ const App = ({ children }: { children: React.ReactNode }) => {
         });
         socket.on("sendPlayers", (players) => {
             dispatch(setPlayers({ players: players }));
+        });
+        socket.on("sendRooms", (rooms) => {
+            dispatch(setRooms({ rooms: rooms }));
         });
         dispatch(
             setSocket({

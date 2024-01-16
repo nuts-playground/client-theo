@@ -25,6 +25,13 @@ io.on("connection", (socket) => {
         socket.emit("sendPlayers", players);
     };
 
+    const sendRooms = () => {
+        players.forEach((player) =>
+            socket.to(player.id).emit("sendRooms", rooms)
+        );
+        socket.emit("sendRooms", rooms);
+    };
+
     socket.on("joinPlayground", (playerName) => {
         const hasPlayer = players.some((player) => player.name === playerName);
 
@@ -53,7 +60,6 @@ io.on("connection", (socket) => {
         socket.emit("sendRoom", room);
     };
 
-    const sendRooms = () => socket.emit("sendRooms", rooms);
     const exitRoom = () => {
         if (!room.id) return false;
         const playerIndex = room.players.findIndex(
@@ -78,7 +84,9 @@ io.on("connection", (socket) => {
         room.winner = roomData.winner;
 
         rooms.push(room);
+        console.log("방 생성", room);
         sendRoom();
+        sendRooms();
     });
 
     socket.on("joinRoom", (roomData) => {

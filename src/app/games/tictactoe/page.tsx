@@ -25,6 +25,8 @@ import { IPlayer, IRoom } from "@/interface/interface";
 import { useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { JoinModal } from "@/components/joinModal";
+import { selectSocket } from "@/app/redux/socketSlice";
+import { selectRooms } from "@/app/redux/roomsSlice";
 
 const Room = ({
     room,
@@ -197,23 +199,23 @@ const GameLobby = ({
     roomList,
     room,
     setRoom,
-    socket,
     player,
     gameStart,
 }: {
     roomList: IRoom[];
     room: IRoom;
     setRoom: Function;
-    socket: any;
     player: IPlayer;
     gameStart: Function;
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
+
+    const socket = useAppSelector(selectSocket);
+
     const createRoom = () => {
         setRoomName("");
         onClose();
-        console.log(player);
         socket.emit("createRoom", {
             name: roomName,
             player: player,
@@ -291,26 +293,13 @@ const GameLobby = ({
 };
 
 export default () => {
-    const [playeaar, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
     const [room, setRoom] = useState<IRoom>({} as IRoom);
-    const [playerName, setPlayerName] = useState<string>("");
+
+    const rooms = useAppSelector(selectRooms);
 
     const player = useAppSelector(selectPlayer);
-
-    const joinGame = () => {
-        setPlayer({
-            id: socket.id as string,
-            name: playerName,
-            isReady: false,
-            location: "Lobby",
-        });
-        socket.on("sendRooms", (roomList: IRoom[]) => setRoomList(roomList));
-        socket.on("sendRoom", (roomData: IRoom) => setRoom(roomData));
-        setSocket(socket);
-        socket.emit("getRooms");
-    };
 
     const gameStart = () => {
         setRoom((prev: IRoom) => {
@@ -422,10 +411,9 @@ export default () => {
 
                     {player.id ? (
                         <GameLobby
-                            roomList={roomList}
+                            roomList={rooms}
                             room={room}
                             setRoom={setRoom}
-                            socket={socket}
                             player={player}
                             gameStart={gameStart}
                         />
