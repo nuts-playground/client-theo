@@ -14,12 +14,12 @@ import {
 } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { useForm } from "react-hook-form";
 import { IPlayer } from "@/interface/interface";
 import { useAppSelector, useAppDispatch } from "./redux/hook";
 import { setPlayer, selectPlayer } from "./redux/playerSlice";
 import { setSocket } from "./redux/socketSlice";
 import { JoinModal } from "@/components/joinModal";
+import { selectPlayers } from "./redux/playersSlice";
 
 const PlayerList = ({ players }: { players: IPlayer[] }) => {
     return (
@@ -69,34 +69,8 @@ const PlayerList = ({ players }: { players: IPlayer[] }) => {
 };
 
 export default function Home() {
-    // const [socket, setSocket] = useState<any>({});
-    const [players, setPlayers] = useState<IPlayer[]>([]);
-    const { register, handleSubmit, watch } = useForm();
-
     const player = useAppSelector(selectPlayer);
-    const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        const socket = io("http://localhost:3001");
-        socket.on("sendPlayers", (players) => setPlayers(players));
-        socket.on("joinPlayground", (isSuccess) => {
-            if (isSuccess) {
-                dispatch(
-                    setPlayer({
-                        id: socket.id as string,
-                        name: watch("playerName"),
-                        isReady: false,
-                        location: "Lobby",
-                    })
-                );
-            }
-        });
-        dispatch(
-            setSocket({
-                socket: socket,
-            })
-        );
-    }, []);
+    const players = useAppSelector(selectPlayers);
 
     return (
         <>
@@ -105,7 +79,6 @@ export default function Home() {
             </GameSection>
             <StatusSection>
                 <>
-                    {/* <div>{testPlayer}</div> */}
                     <PlayerList players={players} />
                     {player.id ? null : <JoinModal />}
                 </>

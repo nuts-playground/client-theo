@@ -28,17 +28,22 @@ io.on("connection", (socket) => {
     socket.on("joinPlayground", (playerName) => {
         const hasPlayer = players.some((player) => player.name === playerName);
 
-        if (!hasPlayer) {
-            players.push({
-                id: socket.id,
-                name: playerName,
-                isReady: false, // TODO: 플레이어의 준비 상태는 room 객체에서 관리하도록 수정 필요
-                location: "Lobby",
-            });
-            console.log("유저 등록 성공", players);
+        if (hasPlayer) {
+            socket.emit("joinPlayground", false);
+            return false;
         }
+
+        const newPlayer: IPlayer = {
+            id: socket.id,
+            name: playerName,
+            isReady: false, // TODO: 플레이어의 준비 상태는 room 객체에서 관리하도록 수정 필요
+            location: "Lobby",
+        };
+        players.push(newPlayer);
+
+        console.log(players);
         sendPlayers();
-        socket.emit("joinPlayground", !hasPlayer);
+        socket.emit("joinPlayground", newPlayer);
     });
 
     const sendRoom = () => {

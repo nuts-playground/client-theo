@@ -14,7 +14,6 @@ import {
     User,
     Divider,
 } from "@nextui-org/react";
-import { io } from "socket.io-client";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
 import { useEffect, useState } from "react";
@@ -24,6 +23,8 @@ import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
 import { IPlayer, IRoom } from "@/interface/interface";
 import { useAppSelector } from "../../redux/hook";
+import { selectPlayer } from "@/app/redux/playerSlice";
+import { JoinModal } from "@/components/joinModal";
 
 const Room = ({
     room,
@@ -296,7 +297,7 @@ export default () => {
     const [room, setRoom] = useState<IRoom>({} as IRoom);
     const [playerName, setPlayerName] = useState<string>("");
 
-    const player = useAppSelector((state) => state.player);
+    const player = useAppSelector(selectPlayer);
 
     const joinGame = () => {
         setPlayer({
@@ -377,11 +378,6 @@ export default () => {
 
     const resetBoard = () => {};
 
-    useEffect(() => {
-        const socket = io("http://localhost:3001");
-        setSocket(socket);
-    }, []);
-
     return (
         <>
             <GameSection>
@@ -434,31 +430,7 @@ export default () => {
                             gameStart={gameStart}
                         />
                     ) : (
-                        <div className="w-[350px] max-w-full">
-                            <div className="flex mb-2">
-                                <Input
-                                    className="grow mr-2"
-                                    type="text"
-                                    color="primary"
-                                    size="sm"
-                                    value={playerName}
-                                    placeholder="Enter your name and join"
-                                    onChange={(
-                                        e: React.ChangeEvent<HTMLInputElement>
-                                    ) => {
-                                        setPlayerName(e.target.value);
-                                    }}
-                                />
-
-                                <PopoverButton
-                                    condition={Boolean(player)}
-                                    onClick={joinGame}
-                                    buttonText="Join"
-                                    popoverTitle="The name is empty."
-                                    popoverText=" Please enter your name for multiplayer."
-                                />
-                            </div>
-                        </div>
+                        <JoinModal />
                     )}
 
                     {room.players?.some((player) => {

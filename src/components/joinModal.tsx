@@ -18,11 +18,9 @@ export const JoinModal = () => {
     const socket = useAppSelector((state) => state.socketStore.socket);
 
     const onSubmit = () => {
-        console.log(socket);
         socket.emit("joinPlayground", watch("playerName"));
     };
 
-    const player = useAppSelector((state) => state.player);
     useEffect(() => {
         onOpen();
     }, []);
