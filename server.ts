@@ -96,6 +96,7 @@ io.on("connection", (socket) => {
     socket.on("getRooms", () => sendRooms());
 
     socket.on("disconnect", () => {
+        console.log("유저 제거");
         const playerIndex = players.findIndex(
             (player) => player.id === socket.id
         );

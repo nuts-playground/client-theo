@@ -23,6 +23,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
 import { IPlayer, IRoom } from "@/interface/interface";
+import { useAppSelector } from "../../redux/hook";
 
 const Room = ({
     room,
@@ -289,12 +290,13 @@ const GameLobby = ({
 };
 
 export default () => {
-    const [player, setPlayer] = useState<IPlayer>({} as IPlayer);
+    const [playeaar, setPlayer] = useState<IPlayer>({} as IPlayer);
     const [roomList, setRoomList] = useState<any>([]);
     const [socket, setSocket] = useState<any>();
     const [room, setRoom] = useState<IRoom>({} as IRoom);
-
     const [playerName, setPlayerName] = useState<string>("");
+
+    const player = useAppSelector((state) => state.player);
 
     const joinGame = () => {
         setPlayer({
