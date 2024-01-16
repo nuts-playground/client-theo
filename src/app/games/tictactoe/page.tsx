@@ -3,8 +3,6 @@ import { motion } from "framer-motion";
 import {
     Button,
     Input,
-    Listbox,
-    ListboxItem,
     Modal,
     ModalContent,
     ModalHeader,
@@ -18,8 +16,6 @@ import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
 import { useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDoorOpen, faDoorClosed } from "@fortawesome/free-solid-svg-icons";
 import PopoverButton from "@/components/popoverButton";
 import { IPlayer, IRoom } from "@/interface/interface";
 import { useAppSelector } from "../../redux/hook";
@@ -27,16 +23,16 @@ import { selectPlayer } from "@/app/redux/playerSlice";
 import { JoinModal } from "@/components/joinModal";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRooms } from "@/app/redux/roomsSlice";
+import { selectRoom } from "@/app/redux/roomSlice";
+import { RoomList } from "@/components/roomList";
 
 const Room = ({
     room,
-    setRoom,
     socket,
     player,
     gameStart,
 }: {
     room: IRoom;
-    setRoom: Function;
     socket: any;
     player: IPlayer;
     gameStart: Function;
@@ -54,11 +50,6 @@ const Room = ({
         );
 
         setIsReady((prevIsReady) => {
-            setRoom((prevRoom: IRoom) => {
-                prevRoom.players[playerIndex].isReady = !prevIsReady;
-                socket.emit("sendRoom", prevRoom);
-                return prevRoom;
-            });
             return !prevIsReady;
         });
     };
@@ -146,71 +137,21 @@ const Room = ({
     );
 };
 
-const RoomList = ({
-    roomList,
-    socket,
-    player,
-}: {
-    roomList: IRoom[];
-    socket: any;
-    player: IPlayer;
-}) => {
-    const joinRoom = (roomId: number) => {
-        socket.emit("joinRoom", {
-            id: roomId,
-            player: player,
-        });
-    };
-
-    return (
-        <Listbox
-            className="mb-2 gap-0 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium"
-            aria-label="Actions"
-            emptyContent="There are currently no rooms available. Please make a room."
-        >
-            {roomList.map((room: IRoom, index: number) => {
-                const isFull = room.players.length === 2;
-                return (
-                    <ListboxItem
-                        key={index}
-                        startContent={
-                            isFull ? (
-                                <FontAwesomeIcon icon={faDoorClosed} />
-                            ) : (
-                                <FontAwesomeIcon icon={faDoorOpen} />
-                            )
-                        }
-                        description={`참가자: ${room.players
-                            .map((player: any) => player.name)
-                            .join(", ")}`}
-                        onClick={() => {
-                            joinRoom(room.id);
-                        }}
-                    >
-                        {room.name}
-                    </ListboxItem>
-                );
-            })}
-        </Listbox>
-    );
-};
-
 const GameLobby = ({
     roomList,
     room,
-    setRoom,
     player,
     gameStart,
 }: {
     roomList: IRoom[];
     room: IRoom;
-    setRoom: Function;
     player: IPlayer;
     gameStart: Function;
 }) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
 
+    const rooms = useAppSelector(selectRooms);
     const socket = useAppSelector(selectSocket);
 
     const createRoom = () => {
@@ -230,18 +171,13 @@ const GameLobby = ({
             {room.id ? (
                 <Room
                     room={room}
-                    setRoom={setRoom}
                     socket={socket}
                     player={player}
                     gameStart={gameStart}
                 />
             ) : (
                 <>
-                    <RoomList
-                        roomList={roomList}
-                        socket={socket}
-                        player={player}
-                    />
+                    <RoomList rooms={rooms} />
                     <Button
                         className="w-full"
                         type="button"
@@ -294,19 +230,15 @@ const GameLobby = ({
 
 export default () => {
     const [roomList, setRoomList] = useState<any>([]);
-    const [socket, setSocket] = useState<any>();
-    const [room, setRoom] = useState<IRoom>({} as IRoom);
 
+    const room = useAppSelector(selectRoom);
     const rooms = useAppSelector(selectRooms);
-
     const player = useAppSelector(selectPlayer);
+    const socket = useAppSelector(selectSocket);
 
     const gameStart = () => {
-        setRoom((prev: IRoom) => {
-            prev.isStart = true;
-            socket.emit("sendRoom", prev);
-            return prev;
-        });
+        room.isStart = true;
+        socket.emit("sendRoom", room);
     };
 
     const checkGameOver = (boardData: IGameCell[][]) => {
@@ -348,21 +280,17 @@ export default () => {
     };
 
     const onClick = (y: number, x: number) => {
-        console.log("실행");
         if (room.boardData[y][x].value) return false;
         if (room.currentTurn !== player.name) return false;
-        setRoom((prev: IRoom) => {
-            prev.boardData[y][x].value = true;
-            prev.boardData[y][x].player =
-                prev.players[0].name === player.name ? "O" : "X";
-            prev.currentTurn =
-                prev.currentTurn === prev.players[0].name
-                    ? prev.players[1].name
-                    : prev.players[0].name;
-            prev.winner = checkGameOver(prev.boardData);
-            socket.emit("sendRoom", prev);
-            return prev;
-        });
+        room.boardData[y][x].value = true;
+        room.boardData[y][x].player =
+            room.players[0].name === player.name ? "O" : "X";
+        room.currentTurn =
+            room.currentTurn === room.players[0].name
+                ? room.players[1].name
+                : room.players[0].name;
+        room.winner = checkGameOver(room.boardData);
+        socket.emit("sendRoom", room);
     };
 
     const resetBoard = () => {};
@@ -413,7 +341,6 @@ export default () => {
                         <GameLobby
                             roomList={rooms}
                             room={room}
-                            setRoom={setRoom}
                             player={player}
                             gameStart={gameStart}
                         />

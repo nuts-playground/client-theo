@@ -13,6 +13,7 @@ import { setSocket } from "./redux/socketSlice";
 import "./globals.css";
 import { setPlayers } from "./redux/playersSlice";
 import { setRooms } from "./redux/roomsSlice";
+import { setRoom } from "./redux/roomSlice";
 
 const orbit = Orbit({
     subsets: ["latin"],
@@ -34,6 +35,9 @@ const App = ({ children }: { children: React.ReactNode }) => {
         });
         socket.on("sendPlayers", (players) => {
             dispatch(setPlayers({ players: players }));
+        });
+        socket.on("sendRoom", (room) => {
+            dispatch(setRoom({ room: room }));
         });
         socket.on("sendRooms", (rooms) => {
             dispatch(setRooms({ rooms: rooms }));

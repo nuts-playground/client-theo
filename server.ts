@@ -48,9 +48,9 @@ io.on("connection", (socket) => {
         };
         players.push(newPlayer);
 
-        console.log(players);
         sendPlayers();
         socket.emit("joinPlayground", newPlayer);
+        socket.emit("sendRooms", rooms);
     });
 
     const sendRoom = () => {

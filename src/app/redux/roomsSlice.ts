@@ -12,7 +12,6 @@ export const rooms = createSlice({
     reducers: {
         setRooms: (state, { payload }) => {
             state.rooms = payload.rooms;
-            console.log(state);
         },
     },
 });

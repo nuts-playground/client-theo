@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import playerSlice from "./playerSlice";
 import socketSlice from "./socketSlice";
 import playersSlice from "./playersSlice";
+import roomSlice from "./roomSlice";
 import roomsSlice from "./roomsSlice";
 
 export const store = configureStore({
@@ -9,6 +10,7 @@ export const store = configureStore({
         player: playerSlice,
         playersStore: playersSlice,
         socketStore: socketSlice,
+        roomStore: roomSlice,
         roomsStore: roomsSlice,
     },
 });
