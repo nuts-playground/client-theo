@@ -17,7 +17,7 @@ import StatusSection from "@/components/statusSection";
 import { useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import PopoverButton from "@/components/popoverButton";
-import { IPlayer, IRoom } from "@/interface/interface";
+import { IPlayer } from "@/interface/interface";
 import { useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { JoinModal } from "@/components/joinModal";
@@ -25,132 +25,14 @@ import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRooms } from "@/app/redux/roomsSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
+import { Room } from "@/components/room";
 
-const Room = ({
-    room,
-    socket,
-    player,
-    gameStart,
-}: {
-    room: IRoom;
-    socket: any;
-    player: IPlayer;
-    gameStart: Function;
-}) => {
-    const [isReady, setIsReady] = useState<boolean>(false);
-    const [isMaster, setIsMaster] = useState<boolean>(false);
-
-    const exitRoom = () => {
-        socket.emit("exitRoom");
-    };
-
-    const readyToggle = () => {
-        const playerIndex = room.players?.findIndex(
-            (roomPlayer) => roomPlayer.name === player.name
-        );
-
-        setIsReady((prevIsReady) => {
-            return !prevIsReady;
-        });
-    };
-
-    useEffect(() => {
-        if (
-            Array.isArray(room.players) &&
-            room.players[0]?.name === player.name
-        )
-            setIsMaster(true);
-    }, []);
-
-    return (
-        <>
-            <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {room.players?.map((player, index: number) => {
-                    return (
-                        <div
-                            className="flex items-center space-x-4"
-                            key={index}
-                        >
-                            <User
-                                className="text-nowrap"
-                                name={player.name}
-                                description={player.isReady ? "Ready!" : null}
-                            />
-                            {index !== room.players.length - 1 ? (
-                                <Divider
-                                    className="h-4"
-                                    orientation="vertical"
-                                />
-                            ) : null}
-                        </div>
-                    );
-                })}
-            </div>
-            {room.isStart ? null : (
-                <div className="flex space-x-2">
-                    <Button
-                        className="w-full"
-                        type="button"
-                        color="default"
-                        size="lg"
-                        onPress={exitRoom}
-                    >
-                        Exit
-                    </Button>
-
-                    {isMaster ? null : null}
-                    <Button
-                        className="w-full"
-                        type="button"
-                        color={
-                            isReady
-                                ? isMaster &&
-                                  room.players?.every(
-                                      (player: IPlayer) => player.isReady
-                                  )
-                                    ? "primary"
-                                    : "success"
-                                : "primary"
-                        }
-                        size="lg"
-                        onPress={() => {
-                            isMaster &&
-                            room.players?.every(
-                                (player: IPlayer) => player.isReady
-                            )
-                                ? gameStart()
-                                : readyToggle();
-                        }}
-                    >
-                        {isReady
-                            ? isMaster &&
-                              room.players?.every(
-                                  (player: IPlayer) => player.isReady
-                              )
-                                ? "Start!"
-                                : "OK!"
-                            : "Ready"}
-                    </Button>
-                </div>
-            )}
-        </>
-    );
-};
-
-const GameLobby = ({
-    roomList,
-    room,
-    player,
-    gameStart,
-}: {
-    roomList: IRoom[];
-    room: IRoom;
-    player: IPlayer;
-    gameStart: Function;
-}) => {
+const GameLobby = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const [roomName, setRoomName] = useState<string>("");
 
+    const player = useAppSelector(selectPlayer);
+    const room = useAppSelector(selectRoom);
     const rooms = useAppSelector(selectRooms);
     const socket = useAppSelector(selectSocket);
 
@@ -169,12 +51,7 @@ const GameLobby = ({
     return (
         <div>
             {room.id ? (
-                <Room
-                    room={room}
-                    socket={socket}
-                    player={player}
-                    gameStart={gameStart}
-                />
+                <Room />
             ) : (
                 <>
                     <RoomList rooms={rooms} />
@@ -229,17 +106,9 @@ const GameLobby = ({
 };
 
 export default () => {
-    const [roomList, setRoomList] = useState<any>([]);
-
     const room = useAppSelector(selectRoom);
-    const rooms = useAppSelector(selectRooms);
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
-
-    const gameStart = () => {
-        room.isStart = true;
-        socket.emit("sendRoom", room);
-    };
 
     const checkGameOver = (boardData: IGameCell[][]) => {
         const lineArray = [
@@ -337,16 +206,7 @@ export default () => {
                         </div>
                     ) : null} */}
 
-                    {player.id ? (
-                        <GameLobby
-                            roomList={rooms}
-                            room={room}
-                            player={player}
-                            gameStart={gameStart}
-                        />
-                    ) : (
-                        <JoinModal />
-                    )}
+                    {player.id ? <GameLobby /> : <JoinModal />}
 
                     {room.players?.some((player) => {
                         console.log(room);
