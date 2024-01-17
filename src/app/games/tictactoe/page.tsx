@@ -17,15 +17,14 @@ import StatusSection from "@/components/statusSection";
 import { useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import PopoverButton from "@/components/popoverButton";
-import { IPlayer } from "@/interface/interface";
 import { useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
-import { JoinModal } from "@/components/joinModal";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRooms } from "@/app/redux/roomsSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
+import { selectJoinModal } from "@/app/redux/joinModalSlice";
 
 const GameLobby = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -109,6 +108,7 @@ export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
+    const joinModal = useAppSelector(selectJoinModal);
 
     const checkGameOver = (boardData: IGameCell[][]) => {
         const lineArray = [
@@ -163,6 +163,12 @@ export default () => {
     };
 
     const resetBoard = () => {};
+
+    useEffect(() => {
+        if (joinModal.onOpen && !player.id) {
+            joinModal.onOpen();
+        }
+    }, [joinModal]);
 
     return (
         <>

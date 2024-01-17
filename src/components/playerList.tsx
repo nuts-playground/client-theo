@@ -8,9 +8,11 @@ import {
     ButtonGroup,
     Button,
 } from "@nextui-org/react";
-import { IPlayer } from "@/interface/interface";
+import { useAppSelector } from "@/app/redux/hook";
+import { selectPlayers } from "@/app/redux/playersSlice";
 
-export const PlayerList = ({ players }: { players: IPlayer[] }) => {
+export const PlayerList = () => {
+    const players = useAppSelector(selectPlayers);
     return (
         <section>
             <h3 className="mb-1 pl-1 text-xl font-bold">Online players</h3>
