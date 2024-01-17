@@ -34,7 +34,6 @@ io.on("connection", (socket) => {
 
     socket.on("joinPlayground", (playerName) => {
         const hasPlayer = players.some((player) => player.name === playerName);
-
         if (hasPlayer) {
             socket.emit("joinPlayground", false);
             return false;
@@ -47,7 +46,6 @@ io.on("connection", (socket) => {
             location: "Lobby",
         };
         players.push(newPlayer);
-
         sendPlayers();
         socket.emit("joinPlayground", newPlayer);
         socket.emit("sendRooms", rooms);
@@ -117,6 +115,8 @@ io.on("connection", (socket) => {
         sendPlayers();
         exitRoom();
     });
+
+    sendPlayers();
 });
 
 const PORT = process.env.PORT || 3001;

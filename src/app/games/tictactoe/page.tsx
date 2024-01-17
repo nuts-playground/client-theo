@@ -206,8 +206,6 @@ export default () => {
                         </div>
                     ) : null} */}
 
-                    {player.id ? <GameLobby /> : <JoinModal />}
-
                     {room.players?.some((player) => {
                         console.log(room);
                         return player.name === room.winner;

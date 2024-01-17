@@ -18,10 +18,7 @@ export default function Home() {
                 <GameList />
             </GameSection>
             <StatusSection>
-                <>
-                    <PlayerList players={players} />
-                    {player.id ? null : <JoinModal />}
-                </>
+                <PlayerList players={players} />
             </StatusSection>
         </>
     );

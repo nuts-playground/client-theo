@@ -1,19 +1,20 @@
 "use client";
 // import type { Metadata } from "next";
 import { Orbit } from "next/font/google";
-import Link from "next/link";
 import { NextUIProvider } from "@nextui-org/react";
 import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
-import { useAppDispatch } from "./redux/hook";
+import { useAppDispatch, useAppSelector } from "./redux/hook";
 import { setPlayer } from "./redux/playerSlice";
 import { setSocket } from "./redux/socketSlice";
-import "./globals.css";
 import { setPlayers } from "./redux/playersSlice";
 import { setRooms } from "./redux/roomsSlice";
 import { setRoom } from "./redux/roomSlice";
+import { Header } from "@/components/layout/header";
+import "./globals.css";
+import { selectJoinModal } from "./redux/joinModalSlice";
 
 const orbit = Orbit({
     subsets: ["latin"],
@@ -27,11 +28,18 @@ const orbit = Orbit({
 
 const App = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useAppDispatch();
+    const joinModal = useAppSelector(selectJoinModal);
+
     useEffect(() => {
         const socket = io("http://localhost:3001");
-        // socket.on("sendPlayers", (players) => setPlayers(players));
         socket.on("joinPlayground", (player) => {
-            if (player) dispatch(setPlayer(player));
+            if (player) {
+                dispatch(setPlayer(player));
+                joinModal.onClose();
+                console.log(joinModal.onClose);
+            } else {
+                alert("이미 존재하는 이름입니다.");
+            }
         });
         socket.on("sendPlayers", (players) => {
             dispatch(setPlayers({ players: players }));
@@ -47,7 +55,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
                 socket: socket,
             })
         );
-    }, []);
+    }, [joinModal]);
     return <div className="flex grow">{children}</div>;
 };
 
@@ -65,15 +73,7 @@ export default function RootLayout({
                 <NextUIProvider>
                     <Provider store={store}>
                         <div className="flex flex-col w-screen h-screen p-10 bg-[url('/background.webp')] bg-cover bg-center">
-                            <header>
-                                <nav>
-                                    <ul className="flex">
-                                        <li className="text-2xl font-bold hover:underline">
-                                            <Link href="/">HOME</Link>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </header>
+                            <Header />
                             <App>{children}</App>
                         </div>
                     </Provider>
