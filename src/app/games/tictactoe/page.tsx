@@ -9,8 +9,6 @@ import {
     ModalBody,
     ModalFooter,
     useDisclosure,
-    User,
-    Divider,
 } from "@nextui-org/react";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
@@ -32,7 +30,6 @@ const GameLobby = () => {
 
     const player = useAppSelector(selectPlayer);
     const room = useAppSelector(selectRoom);
-    const rooms = useAppSelector(selectRooms);
     const socket = useAppSelector(selectSocket);
 
     const createRoom = () => {
@@ -53,7 +50,6 @@ const GameLobby = () => {
                 <Room />
             ) : (
                 <>
-                    <RoomList rooms={rooms} />
                     <Button
                         className="w-full"
                         type="button"
@@ -186,6 +182,10 @@ export default () => {
                 }
             >
                 <>
+                    <div className="w-[350px] max-w-full">
+                        {room.id ? <Room /> : <RoomList />}
+                    </div>
+
                     {/* {room.isStart ? (
                         <div className="flex items-end text-6xl font-bold">
                             <span className="relative">

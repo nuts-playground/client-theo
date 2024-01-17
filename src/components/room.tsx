@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useAppSelector } from "@/app/redux/hook";
+import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectPlayer } from "@/app/redux/playerSlice";
-import { selectRoom } from "@/app/redux/roomSlice";
+import { selectRoom, setRoom } from "@/app/redux/roomSlice";
 import { User, Divider, Button } from "@nextui-org/react";
 import { IPlayer } from "@/interface/interface";
 
@@ -13,6 +13,9 @@ export const Room = () => {
     const socket = useAppSelector(selectSocket);
     const player = useAppSelector(selectPlayer);
     const room = useAppSelector(selectRoom);
+
+    const dispatch = useAppDispatch();
+
     const exitRoom = () => {
         socket.emit("exitRoom");
     };
@@ -22,6 +25,9 @@ export const Room = () => {
             (roomPlayer) => roomPlayer.name === player.name
         );
 
+        dispatch(setRoom({ players: room.players }));
+
+        socket.emit("sendRoom", room);
         setIsReady((prevIsReady) => {
             return !prevIsReady;
         });

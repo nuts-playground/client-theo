@@ -8,6 +8,7 @@ export interface IPlayer {
 }
 
 export interface IRoom {
+    [key: string]: any;
     id: number;
     name: string;
     players: IPlayer[];

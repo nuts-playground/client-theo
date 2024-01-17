@@ -45,7 +45,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
             dispatch(setPlayers({ players: players }));
         });
         socket.on("sendRoom", (room) => {
-            dispatch(setRoom({ room: room }));
+            dispatch(setRoom(room));
         });
         socket.on("sendRooms", (rooms) => {
             dispatch(setRooms({ rooms: rooms }));

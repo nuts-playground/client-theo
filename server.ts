@@ -94,6 +94,7 @@ io.on("connection", (socket) => {
             rooms[roomIndex].players.push(roomData.player);
             room = rooms[roomIndex];
             sendRoom();
+            console.log("방 입장", room);
         }
     });
 
