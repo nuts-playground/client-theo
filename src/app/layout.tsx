@@ -35,7 +35,6 @@ const App = ({ children }: { children: React.ReactNode }) => {
         socket.on("joinPlayground", (player) => {
             if (player) {
                 dispatch(setPlayer(player));
-                joinModal.onClose();
             } else {
                 alert("이미 존재하는 이름입니다.");
             }
@@ -55,7 +54,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
             })
         );
     }, [joinModal]);
-    return <div className="flex grow">{children}</div>;
+    return <div className="flex w-full grow justify-center">{children}</div>;
 };
 
 export default function RootLayout({
@@ -64,14 +63,14 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="ko">
+        <html lang="ko" className="dark">
             <head>
                 <title>Theo Playground</title>
             </head>
             <body className={orbit.className}>
                 <NextUIProvider>
                     <Provider store={store}>
-                        <div className="flex flex-col w-screen h-screen p-10 bg-[url('/background.webp')] bg-cover bg-center">
+                        <div className="flex items-center flex-col w-screen h-screen bg-background">
                             <Header />
                             <App>{children}</App>
                         </div>

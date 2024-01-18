@@ -4,8 +4,8 @@ export const Nav = () => {
     return (
         <nav>
             <ul className="flex">
-                <li className="text-2xl font-bold hover:underline">
-                    <Link href="/">HOME</Link>
+                <li className="text-lg hover:underline">
+                    <Link href="/about">ABOUT</Link>
                 </li>
             </ul>
         </nav>
