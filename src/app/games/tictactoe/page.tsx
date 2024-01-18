@@ -213,7 +213,6 @@ export default () => {
                     ) : null} */}
 
                     {room.players?.some((player) => {
-                        console.log(room);
                         return player.name === room.winner;
                     }) ? (
                         <motion.div

@@ -1,6 +1,7 @@
 import { IGameCell } from "@/components/gameBoard";
 
 export interface IPlayer {
+    [key: string]: any;
     id: string;
     name: string;
     isReady: boolean;

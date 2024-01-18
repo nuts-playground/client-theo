@@ -36,7 +36,6 @@ const App = ({ children }: { children: React.ReactNode }) => {
             if (player) {
                 dispatch(setPlayer(player));
                 joinModal.onClose();
-                console.log(joinModal.onClose);
             } else {
                 alert("이미 존재하는 이름입니다.");
             }

@@ -14,10 +14,9 @@ export const player = createSlice({
     initialState,
     reducers: {
         setPlayer: (state, { payload }) => {
-            state.id = payload.id;
-            state.name = payload.name;
-            state.isReady = payload.isReady;
-            state.location = payload.location;
+            Object.keys(payload).forEach((key) => {
+                state[key] = payload[key];
+            });
         },
     },
 });

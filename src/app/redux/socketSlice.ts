@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { RootState } from "./store";
+import { store, type RootState } from "./store";
 import { Socket } from "socket.io-client";
 
 const initialState = {
@@ -15,7 +15,6 @@ export const socket = createSlice({
         },
     },
 });
-
 export const { setSocket } = socket.actions;
 
 export const selectSocket = (state: RootState) => state.socketStore.socket;

@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { RootState } from "./store";
+import { store, type RootState } from "./store";
 import { IRoom } from "@/interface/interface";
+import { selectSocket } from "./socketSlice";
 
 const initialState = {} as IRoom;
 
@@ -13,10 +14,17 @@ export const room = createSlice({
                 state[key] = payload[key];
             });
         },
+        updateRoomPlayer: (state, { payload }) => {
+            const playerIndex = state.players.findIndex(
+                (player) => player.name === payload.name
+            );
+            state.players[playerIndex] = payload;
+            console.log(state, "asd");
+        },
     },
 });
 
-export const { setRoom } = room.actions;
+export const { setRoom, updateRoomPlayer } = room.actions;
 
 export const selectRoom = (state: RootState) => state.roomStore;
 

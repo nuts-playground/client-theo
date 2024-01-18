@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { selectPlayer } from "@/app/redux/playerSlice";
-import { selectRoom, setRoom } from "@/app/redux/roomSlice";
+import { selectPlayer, setPlayer } from "@/app/redux/playerSlice";
+import { selectRoom, setRoom, updateRoomPlayer } from "@/app/redux/roomSlice";
 import { User, Divider, Button } from "@nextui-org/react";
 import { IPlayer } from "@/interface/interface";
 
 export const Room = () => {
-    const [isReady, setIsReady] = useState<boolean>(false);
     const [isMaster, setIsMaster] = useState<boolean>(false);
 
     const socket = useAppSelector(selectSocket);
@@ -21,16 +20,8 @@ export const Room = () => {
     };
 
     const readyToggle = () => {
-        const playerIndex = room.players?.findIndex(
-            (roomPlayer) => roomPlayer.name === player.name
-        );
-
-        dispatch(setRoom({ players: room.players }));
-
-        socket.emit("sendRoom", room);
-        setIsReady((prevIsReady) => {
-            return !prevIsReady;
-        });
+        socket.emit("ready", !player.isReady);
+        dispatch(setPlayer({ isReady: !player.isReady }));
     };
 
     const gameStart = () => {
@@ -43,13 +34,13 @@ export const Room = () => {
             Array.isArray(room.players) &&
             room.players[0]?.name === player.name
         )
-            setIsMaster(true);
+            setIsMaster(false);
     }, []);
 
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {room.players?.map((player, index: number) => {
+                {room.players.map((player, index: number) => {
                     return (
                         <div
                             className="flex items-center space-x-4"
@@ -87,7 +78,7 @@ export const Room = () => {
                         className="w-full"
                         type="button"
                         color={
-                            isReady
+                            player.isReady
                                 ? isMaster &&
                                   room.players?.every(
                                       (player: IPlayer) => player.isReady
@@ -106,7 +97,7 @@ export const Room = () => {
                                 : readyToggle();
                         }}
                     >
-                        {isReady
+                        {player.isReady
                             ? isMaster &&
                               room.players?.every(
                                   (player: IPlayer) => player.isReady

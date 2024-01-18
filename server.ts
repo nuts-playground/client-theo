@@ -52,6 +52,7 @@ io.on("connection", (socket) => {
     });
 
     const sendRoom = () => {
+        console.log(room, "룸 전송");
         room.players.forEach((player) => {
             socket.to(player.id).emit("sendRoom", room);
         });
@@ -71,6 +72,15 @@ io.on("connection", (socket) => {
     };
 
     socket.on("getRoom", () => socket.emit("getRoom", rooms));
+
+    socket.on("ready", (isReady) => {
+        if (!room.id) return false;
+        const playerIndex = room.players.findIndex(
+            (player) => player.id === socket.id
+        );
+        room.players[playerIndex].isReady = isReady;
+        sendRoom();
+    });
 
     socket.on("createRoom", (roomData) => {
         room.id = Date.now();
