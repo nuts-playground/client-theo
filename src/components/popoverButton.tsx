@@ -7,10 +7,11 @@ import {
 
 interface IPopoverButton {
     condition: Boolean;
-    onClick: () => void;
+    onClick?: () => void;
     buttonText: String;
     popoverTitle: String;
     popoverText: String;
+    type: "button" | "reset" | "submit" | undefined;
 }
 
 export default ({
@@ -19,14 +20,17 @@ export default ({
     buttonText,
     popoverTitle,
     popoverText,
+    type,
 }: IPopoverButton) => {
     return (
         <>
             {condition ? (
                 <Button
-                    type="button"
+                    type={type}
                     color="primary"
                     size="lg"
+                    className="h-full"
+                    radius="full"
                     onPress={onClick}
                 >
                     {buttonText}
@@ -34,7 +38,13 @@ export default ({
             ) : (
                 <Popover>
                     <PopoverTrigger>
-                        <Button type="button" color="primary" size="lg">
+                        <Button
+                            type={type}
+                            color="primary"
+                            size="lg"
+                            className="h-full"
+                            radius="full"
+                        >
                             {buttonText}
                         </Button>
                     </PopoverTrigger>

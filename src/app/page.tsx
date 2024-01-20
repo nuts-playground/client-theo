@@ -1,8 +1,12 @@
 "use client";
 import { PlayerList } from "@/components/playerList";
 import { Join } from "@/components/join";
+import { useAppSelector } from "./redux/hook";
+import { selectPlayer } from "./redux/playerSlice";
+import StatusSection from "@/components/statusSection";
 
 export default function Home() {
+    const player = useAppSelector(selectPlayer);
     return (
         <div className="flex justify-between h-full px-6 max-w-screen-xl">
             <div className="flex flex-col justify-center mr-10">
@@ -14,15 +18,14 @@ export default function Home() {
                 <p className="mb-4 text-gray-400">
                     Made by THEO(MY NAME IS HOMIN)
                 </p>
-                <Join />
+                {player.id ? null : <Join />}
             </div>
             {/* <GameSection>
                 <GameList />
             </GameSection> */}
-            <section className="flex flex-col justify-center">
-                <h2 className="mb-4 text-2xl font-bold">ONLINE PLAYERS</h2>
+            <StatusSection title="ONLINE PLAYERS">
                 <PlayerList />
-            </section>
+            </StatusSection>
         </div>
     );
 }

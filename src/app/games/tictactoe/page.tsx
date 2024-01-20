@@ -22,7 +22,6 @@ import { selectRooms } from "@/app/redux/roomsSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
-import { selectJoinModal } from "@/app/redux/joinModalSlice";
 
 const GameLobby = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
@@ -90,6 +89,7 @@ const GameLobby = () => {
                                     buttonText="Create"
                                     popoverTitle="The room name is empty."
                                     popoverText="Please enter room name for multiplayer."
+                                    type="button"
                                 />
                             </ModalFooter>
                         </ModalContent>
@@ -104,7 +104,6 @@ export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
-    const joinModal = useAppSelector(selectJoinModal);
 
     const checkGameOver = (boardData: IGameCell[][]) => {
         const lineArray = [
@@ -160,12 +159,6 @@ export default () => {
 
     const resetBoard = () => {};
 
-    useEffect(() => {
-        if (joinModal.onOpen && !player.id) {
-            joinModal.onOpen();
-        }
-    }, [joinModal]);
-
     return (
         <>
             <GameSection>
@@ -175,16 +168,9 @@ export default () => {
                     isStart={room.isStart}
                 ></GameBoard>
             </GameSection>
-            <StatusSection
-                title={"Tictactoe"}
-                description={
-                    "O and X are drawn alternately. The first person to create horizontal, vertical, and diagonal lines wins."
-                }
-            >
+            <StatusSection title="TIC-TAC-TOE">
                 <>
-                    <div className="w-[350px] max-w-full">
-                        {room.id ? <Room /> : <RoomList />}
-                    </div>
+                    {room.id ? <Room /> : <RoomList />}
 
                     {/* {room.isStart ? (
                         <div className="flex items-end text-6xl font-bold">

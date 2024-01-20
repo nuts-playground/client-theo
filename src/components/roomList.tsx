@@ -12,20 +12,18 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
-    ModalFooter,
     Input,
     useDisclosure,
 } from "@nextui-org/react";
 import PopoverButton from "./popoverButton";
-import { selectJoinModal } from "@/app/redux/joinModalSlice";
 import { useForm } from "react-hook-form";
 import { createGridBoard } from "./gameBoard";
+import { Join } from "./join";
 
 export const RoomList = () => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
-    const joinModal = useAppSelector(selectJoinModal);
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { register, handleSubmit, watch } = useForm();
 
@@ -47,10 +45,19 @@ export const RoomList = () => {
         });
     };
 
+    const openCreateRoomModal = () => {
+        if (player.id) {
+            onOpen();
+        } else {
+            console.log("ss");
+            socket.emit("notJoined");
+        }
+    };
+
     return (
         <>
             <Listbox
-                className="mb-2 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
+                className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
                 aria-label="Actions"
                 emptyContent="There are currently no rooms available. Please make a room."
             >
@@ -78,51 +85,49 @@ export const RoomList = () => {
                     );
                 })}
             </Listbox>
+
             {player.id ? (
                 <Button
                     className="w-full"
                     type="button"
                     color="primary"
                     onClick={onOpen}
+                    radius="full"
+                    size="lg"
                 >
                     Create Room
                 </Button>
             ) : (
-                <Button
-                    className="w-full"
-                    type="button"
-                    color="primary"
-                    onClick={() => {
-                        joinModal.onOpen();
-                    }}
-                >
-                    Create Room
-                </Button>
+                <Join />
             )}
+
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
                         Create room
                     </ModalHeader>
-                    <ModalBody>
-                        <Input
-                            className="grow mr-2"
-                            type="text"
-                            color="primary"
-                            size="sm"
-                            placeholder="Please enter the room name"
-                            {...register("roomName")}
-                        />
+                    <ModalBody className="pb-4">
+                        <form
+                            className="flex space-x-1 h-12"
+                            onSubmit={handleSubmit(createRoom)}
+                        >
+                            <Input
+                                className="w-80"
+                                color="primary"
+                                placeholder="Enter your name"
+                                radius="full"
+                                size="sm"
+                                {...register("roomName")}
+                            />
+                            <PopoverButton
+                                condition={watch("roomName")}
+                                buttonText="Create"
+                                popoverTitle="The room name is empty."
+                                popoverText="Please enter room name for multiplayer."
+                                type="submit"
+                            />
+                        </form>
                     </ModalBody>
-                    <ModalFooter>
-                        <PopoverButton
-                            condition={watch("roomName")}
-                            onClick={createRoom}
-                            buttonText="Create"
-                            popoverTitle="The room name is empty."
-                            popoverText="Please enter room name for multiplayer."
-                        />
-                    </ModalFooter>
                 </ModalContent>
             </Modal>
         </>

@@ -2,13 +2,17 @@ import { useAppSelector } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { Input, Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
+import PopoverButton from "./popoverButton";
 
 export const Join = () => {
     const socket = useAppSelector(selectSocket);
-    const { register, handleSubmit, watch } = useForm();
+    const { register, handleSubmit, watch, setValue } = useForm();
 
     const onJoin = () => {
-        socket.emit("joinPlayground", watch("name"));
+        if (watch("name")) {
+            socket.emit("joinPlayground", watch("name"));
+            setValue("name", "");
+        }
     };
 
     return (
@@ -21,14 +25,13 @@ export const Join = () => {
                 size="sm"
                 {...register("name")}
             />
-            <Button
-                className="h-full"
-                color="primary"
-                radius="full"
+            <PopoverButton
+                condition={watch("name")}
                 type="submit"
-            >
-                JOIN
-            </Button>
+                buttonText="JOIN"
+                popoverTitle="The name is empty."
+                popoverText="Please enter name for multiplayer."
+            />
         </form>
     );
 };

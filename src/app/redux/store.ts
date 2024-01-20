@@ -4,7 +4,6 @@ import socketSlice from "./socketSlice";
 import playersSlice from "./playersSlice";
 import roomSlice from "./roomSlice";
 import roomsSlice from "./roomsSlice";
-import joinModalSlice from "./joinModalSlice";
 
 export const store = configureStore({
     reducer: {
@@ -13,7 +12,6 @@ export const store = configureStore({
         socketStore: socketSlice,
         roomStore: roomSlice,
         roomsStore: roomsSlice,
-        joinModal: joinModalSlice,
     },
 });
 

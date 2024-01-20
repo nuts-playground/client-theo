@@ -1,18 +1,12 @@
 interface IStatusSection {
     children: React.ReactElement;
-    title?: String;
-    description?: String;
+    title: String;
 }
-export default ({ children, title, description }: IStatusSection) => {
+export default ({ children, title }: IStatusSection) => {
     return (
-        <div className="flex flex-col justify-center items-center grow">
-            {title ? (
-                <h2 className="mb-10 text-4xl font-bold">{title}</h2>
-            ) : null}
-            {description ? (
-                <p className="mb-6 px-10 text-xl">{description}</p>
-            ) : null}
+        <section className="flex flex-col justify-center w-full max-w-80">
+            <h2 className="mb-4 text-2xl font-bold">{title}</h2>
             {children}
-        </div>
+        </section>
     );
 };

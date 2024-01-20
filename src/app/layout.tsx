@@ -14,7 +14,6 @@ import { setRooms } from "./redux/roomsSlice";
 import { setRoom } from "./redux/roomSlice";
 import { Header } from "@/components/layout/header";
 import "./globals.css";
-import { selectJoinModal } from "./redux/joinModalSlice";
 
 const orbit = Orbit({
     subsets: ["latin"],
@@ -28,7 +27,6 @@ const orbit = Orbit({
 
 const App = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useAppDispatch();
-    const joinModal = useAppSelector(selectJoinModal);
 
     useEffect(() => {
         const socket = io("http://localhost:3001");
@@ -53,7 +51,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
                 socket: socket,
             })
         );
-    }, [joinModal]);
+    }, []);
     return <div className="flex w-full grow justify-center">{children}</div>;
 };
 

@@ -15,7 +15,7 @@ export const PlayerList = () => {
     const players = useAppSelector(selectPlayers);
     return (
         <Listbox
-            className="mb-2 gap-0 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium"
+            className="mb-2 gap-0 bg-content1 max-w-full overflow-visible shadow-small rounded-medium"
             aria-label="Actions"
             emptyContent="There are no players currently online."
         >
