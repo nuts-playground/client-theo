@@ -1,7 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { store, type RootState } from "./store";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { type RootState } from "./store";
 import { IRoom } from "@/interface/interface";
-import { selectSocket } from "./socketSlice";
 
 const initialState = {} as IRoom;
 
@@ -14,17 +13,29 @@ export const room = createSlice({
                 state[key] = payload[key];
             });
         },
-        updateRoomPlayer: (state, { payload }) => {
-            const playerIndex = state.players.findIndex(
-                (player) => player.name === payload.name
-            );
-            state.players[playerIndex] = payload;
-            console.log(state, "asd");
+        updateBoard: (state, { payload }: PayloadAction<any>) => {
+            console.log(state.currentTurn);
+            if (
+                state.boardData[payload.y][payload.x].value ||
+                state.currentTurn !== payload.player.name
+            )
+                return;
+
+            state.boardData[payload.y][payload.x].value = true;
+            state.boardData[payload.y][payload.x].player =
+                state.master === payload.player.name ? "O" : "X";
+            state.currentTurn =
+                state.currentTurn ===
+                state.players[Object.keys(state.players)[0]].name
+                    ? state.players[Object.keys(state.players)[1]].name
+                    : state.players[Object.keys(state.players)[0]].name;
+
+            // state.winner = checkGameOver(state.boardData);
         },
     },
 });
 
-export const { setRoom, updateRoomPlayer } = room.actions;
+export const { setRoom, updateBoard } = room.actions;
 
 export const selectRoom = (state: RootState) => state.roomStore;
 

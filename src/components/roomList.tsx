@@ -62,7 +62,7 @@ export const RoomList = () => {
                 emptyContent="There are currently no rooms available. Please make a room."
             >
                 {rooms.map((room: IRoom, index: number) => {
-                    const isFull = room.players.length === 2;
+                    const isFull = Object.keys(room.players).length === 2;
                     return (
                         <ListboxItem
                             key={index}
@@ -73,8 +73,8 @@ export const RoomList = () => {
                                     <FontAwesomeIcon icon={faDoorOpen} />
                                 )
                             }
-                            description={`참가자: ${room.players
-                                .map((player: any) => player.name)
+                            description={`참가자: ${Object.keys(room.players)
+                                .map((id: string) => room.players[id].name)
                                 .join(", ")}`}
                             onClick={() => {
                                 joinRoom(room.id);

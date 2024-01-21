@@ -12,9 +12,12 @@ export interface IRoom {
     [key: string]: any;
     id: number;
     name: string;
-    players: IPlayer[];
+    players: {
+        [key: string]: IPlayer;
+    };
     isStart: boolean;
     boardData: IGameCell[][];
     currentTurn: string;
     winner: string | "drow" | "";
+    master: string;
 }

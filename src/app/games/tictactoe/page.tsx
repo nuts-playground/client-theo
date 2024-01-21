@@ -15,11 +15,11 @@ import StatusSection from "@/components/statusSection";
 import { useEffect, useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import PopoverButton from "@/components/popoverButton";
-import { useAppSelector } from "../../redux/hook";
+import { useAppDispatch, useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRooms } from "@/app/redux/roomsSlice";
-import { selectRoom } from "@/app/redux/roomSlice";
+import { selectRoom, updateBoard } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
 
@@ -105,6 +105,8 @@ export default () => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
 
+    const dispatch = useAppDispatch();
+
     const checkGameOver = (boardData: IGameCell[][]) => {
         const lineArray = [
             // 가로 3줄
@@ -144,16 +146,8 @@ export default () => {
     };
 
     const onClick = (y: number, x: number) => {
-        if (room.boardData[y][x].value) return false;
-        if (room.currentTurn !== player.name) return false;
-        room.boardData[y][x].value = true;
-        room.boardData[y][x].player =
-            room.players[0].name === player.name ? "O" : "X";
-        room.currentTurn =
-            room.currentTurn === room.players[0].name
-                ? room.players[1].name
-                : room.players[0].name;
-        room.winner = checkGameOver(room.boardData);
+        dispatch(updateBoard({ y: y, x: x, player: player }));
+
         socket.emit("sendRoom", room);
     };
 
@@ -198,8 +192,8 @@ export default () => {
                         </div>
                     ) : null} */}
 
-                    {room.players?.some((player) => {
-                        return player.name === room.winner;
+                    {/* {Object.keys(room.players).some((id) => {
+                        return room.players[id].name === room.winner;
                     }) ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -225,7 +219,7 @@ export default () => {
                                 </motion.button>
                             </motion.div>
                         </motion.div>
-                    ) : null}
+                    ) : null} */}
 
                     {room.winner === "drow" ? (
                         <motion.div

@@ -1,14 +1,10 @@
-import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectPlayer, setPlayer } from "@/app/redux/playerSlice";
-import { selectRoom, setRoom, updateRoomPlayer } from "@/app/redux/roomSlice";
+import { selectRoom, setRoom } from "@/app/redux/roomSlice";
 import { User, Divider, Button } from "@nextui-org/react";
-import { IPlayer } from "@/interface/interface";
 
 export const Room = () => {
-    const [isMaster, setIsMaster] = useState<boolean>(false);
-
     const socket = useAppSelector(selectSocket);
     const player = useAppSelector(selectPlayer);
     const room = useAppSelector(selectRoom);
@@ -25,22 +21,14 @@ export const Room = () => {
     };
 
     const gameStart = () => {
-        room.isStart = true;
-        socket.emit("sendRoom", room);
+        const newRoom = { ...room, isStart: true };
+        socket.emit("sendRoom", newRoom);
     };
-
-    useEffect(() => {
-        if (
-            Array.isArray(room.players) &&
-            room.players[0]?.name === player.name
-        )
-            setIsMaster(false);
-    }, []);
 
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {room.players.map((player, index: number) => {
+                {Object.keys(room.players).map((id, index: number) => {
                     return (
                         <div
                             className="flex items-center space-x-4"
@@ -48,10 +36,12 @@ export const Room = () => {
                         >
                             <User
                                 className="text-nowrap"
-                                name={player.name}
-                                description={player.isReady ? "Ready!" : null}
+                                name={room.players[id].name}
+                                description={
+                                    room.players[id].isReady ? "Ready!" : null
+                                }
                             />
-                            {index !== room.players.length - 1 ? (
+                            {index !== Object.keys(room.players).length - 1 ? (
                                 <Divider
                                     className="h-4"
                                     orientation="vertical"
@@ -73,15 +63,14 @@ export const Room = () => {
                         Exit
                     </Button>
 
-                    {isMaster ? null : null}
                     <Button
                         className="w-full"
                         type="button"
                         color={
                             player.isReady
-                                ? isMaster &&
-                                  room.players?.every(
-                                      (player: IPlayer) => player.isReady
+                                ? player.name === room.master &&
+                                  Object.keys(room.players).every(
+                                      (id: string) => room.players[id].isReady
                                   )
                                     ? "primary"
                                     : "success"
@@ -89,18 +78,18 @@ export const Room = () => {
                         }
                         size="lg"
                         onPress={() => {
-                            isMaster &&
-                            room.players?.every(
-                                (player: IPlayer) => player.isReady
+                            player.name === room.master &&
+                            Object.keys(room.players).every(
+                                (id: string) => room.players[id].isReady
                             )
                                 ? gameStart()
                                 : readyToggle();
                         }}
                     >
                         {player.isReady
-                            ? isMaster &&
-                              room.players?.every(
-                                  (player: IPlayer) => player.isReady
+                            ? player.name === room.master &&
+                              Object.keys(room.players).every(
+                                  (id: string) => room.players[id].isReady
                               )
                                 ? "Start!"
                                 : "OK!"

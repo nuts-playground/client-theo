@@ -1,3 +1,4 @@
+import { player } from "./src/app/redux/playerSlice";
 import http from "http";
 import { Server } from "socket.io";
 import { IPlayer, IRoom } from "@/interface/interface";
@@ -14,23 +15,28 @@ const io = new Server(httpServer, {
 
 const rooms: IRoom[] = [];
 const players: IPlayer[] = [];
+const connectedId: string[] = [];
 
 io.on("connection", (socket) => {
     let room: IRoom = {} as IRoom;
+    connectedId.push(socket.id);
+    console.log(`${connectedId.length}명 접속 중`);
 
     const sendPlayers = () => {
-        players.forEach((player) =>
-            socket.to(player.id).emit("sendPlayers", players)
-        );
+        connectedId.forEach((id) => socket.to(id).emit("sendPlayers", players));
         socket.emit("sendPlayers", players);
+        console.log(connectedId);
+        console.log(`${connectedId.length}명에게 ${players.length}명 보냄`);
     };
 
     const sendRooms = () => {
-        players.forEach((player) =>
-            socket.to(player.id).emit("sendRooms", rooms)
-        );
+        connectedId.forEach((id) => socket.to(id).emit("sendRooms", rooms));
         socket.emit("sendRooms", rooms);
     };
+
+    socket.on("getPlayers", () => {
+        socket.emit("sendPlayers", players);
+    });
 
     socket.on("joinPlayground", (playerName) => {
         const hasPlayer = players.some((player) => player.name === playerName);
@@ -42,7 +48,7 @@ io.on("connection", (socket) => {
         const newPlayer: IPlayer = {
             id: socket.id,
             name: playerName,
-            isReady: false, // TODO: 플레이어의 준비 상태는 room 객체에서 관리하도록 수정 필요
+            isReady: false,
             location: "Lobby",
         };
         players.push(newPlayer);
@@ -52,19 +58,15 @@ io.on("connection", (socket) => {
     });
 
     const sendRoom = () => {
-        console.log(room, "룸 전송");
-        room.players.forEach((player) => {
-            socket.to(player.id).emit("sendRoom", room);
+        Object.keys(room.players).forEach((id) => {
+            socket.to(id).emit("sendRoom", room);
         });
         socket.emit("sendRoom", room);
     };
 
     const exitRoom = () => {
         if (!room.id) return false;
-        const playerIndex = room.players.findIndex(
-            (player) => player.id === socket.id
-        );
-        room.players.splice(playerIndex);
+        delete room.players[socket.id];
         if (!room.players.length) {
             const roomIndex = rooms.findIndex((item) => item.id === room.id);
             rooms.splice(roomIndex);
@@ -75,24 +77,25 @@ io.on("connection", (socket) => {
 
     socket.on("ready", (isReady) => {
         if (!room.id) return false;
-        const playerIndex = room.players.findIndex(
-            (player) => player.id === socket.id
-        );
-        room.players[playerIndex].isReady = isReady;
+        room.players[socket.id].isReady = isReady;
         sendRoom();
     });
 
     socket.on("createRoom", (roomData) => {
-        room.id = Date.now();
-        room.name = roomData.name;
-        room.players = [roomData.player];
-        room.isStart = false;
-        room.boardData = roomData.boardData;
-        room.currentTurn = roomData.currentTurn;
-        room.winner = roomData.winner;
-
+        const players = {} as any;
+        players[roomData.player.id] = roomData.player;
+        const newRoom = {
+            id: Date.now(),
+            name: roomData.name,
+            players: players,
+            isStart: false,
+            boardData: roomData.boardData,
+            currentTurn: roomData.currentTurn,
+            winner: "",
+            master: roomData.player.name,
+        };
+        room = newRoom;
         rooms.push(room);
-        console.log("방 생성", room);
         sendRoom();
         sendRooms();
     });
@@ -100,12 +103,12 @@ io.on("connection", (socket) => {
     socket.on("joinRoom", (roomData) => {
         const roomIndex = rooms.findIndex((room) => room.id === roomData.id);
 
-        if (rooms[roomIndex].players.length < 2) {
-            rooms[roomIndex].players.push(roomData.player);
+        if (Object.keys(rooms[roomIndex].players).length < 2) {
+            rooms[roomIndex].players[roomData.player.id] = roomData.player;
             room = rooms[roomIndex];
             sendRoom();
-            console.log("방 입장", room);
         }
+        sendRooms();
     });
 
     socket.on("exitRoom", () => exitRoom());
@@ -122,12 +125,14 @@ io.on("connection", (socket) => {
         const playerIndex = players.findIndex(
             (player) => player.id === socket.id
         );
+
+        const idIndex = connectedId.findIndex((id) => id === socket.id);
+        console.log(connectedId);
+        connectedId.splice(idIndex);
         players.splice(playerIndex);
         sendPlayers();
         exitRoom();
     });
-
-    sendPlayers();
 });
 
 const PORT = process.env.PORT || 3001;
