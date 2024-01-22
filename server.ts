@@ -1,7 +1,7 @@
-import { player } from "./src/app/redux/playerSlice";
 import http from "http";
 import { Server } from "socket.io";
 import { IPlayer, IRoom } from "@/interface/interface";
+import { IGameCell } from "@/components/gameBoard";
 
 const httpServer = http.createServer();
 
@@ -16,6 +16,50 @@ const io = new Server(httpServer, {
 const rooms: IRoom[] = [];
 const players: IPlayer[] = [];
 const connectedId: string[] = [];
+
+const checkGameOver = (
+    room: IRoom,
+    player: IPlayer,
+    boardData: IGameCell[][]
+) => {
+    const lineArray = [
+        // 가로 3줄
+        [boardData[0][0], boardData[0][1], boardData[0][2]],
+        [boardData[1][0], boardData[1][1], boardData[1][2]],
+        [boardData[2][0], boardData[2][1], boardData[2][2]],
+        // 세로 3줄
+        [boardData[0][0], boardData[1][0], boardData[2][0]],
+        [boardData[0][1], boardData[1][1], boardData[2][1]],
+        [boardData[0][2], boardData[1][2], boardData[2][2]],
+        // 대각선 2줄
+        [boardData[0][0], boardData[1][1], boardData[2][2]],
+        [boardData[0][2], boardData[1][1], boardData[2][0]],
+    ];
+    for (let i = 0; i < lineArray.length; i++) {
+        console.log(lineArray[i]);
+        if (
+            lineArray[i].every(
+                (item) => item.player.trim() === room.currentTurn.trim()
+            )
+        ) {
+            return player.name;
+        }
+    }
+
+    let cellArray = boardData.reduce(function (
+        prev: IGameCell[],
+        next: IGameCell[]
+    ) {
+        return prev.concat(next);
+    });
+
+    if (cellArray.every((cell: IGameCell) => cell.value)) {
+        return "drow";
+    }
+
+    console.log("여기만 반환?");
+    return "";
+};
 
 io.on("connection", (socket) => {
     let room: IRoom = {} as IRoom;
@@ -109,6 +153,33 @@ io.on("connection", (socket) => {
             sendRoom();
         }
         sendRooms();
+    });
+
+    socket.on("turnEnd", (data) => {
+        console.log(data);
+        console.log(data.room.currentTurn, data.player.name);
+        if (
+            data.room.boardData[data.y][data.x].value ||
+            data.room.currentTurn !== data.player.name
+        )
+            return;
+
+        data.room.boardData[data.y][data.x].value = true;
+        data.room.boardData[data.y][data.x].player =
+            data.room.master === data.player.name ? "O" : "X";
+        data.room.winner = checkGameOver(
+            data.room,
+            data.player,
+            data.room.boardData
+        );
+        data.room.currentTurn =
+            data.room.currentTurn ===
+            data.room.players[Object.keys(data.room.players)[0]].name
+                ? data.room.players[Object.keys(data.room.players)[1]].name
+                : data.room.players[Object.keys(data.room.players)[0]].name;
+
+        room = data.room;
+        sendRoom();
     });
 
     socket.on("exitRoom", () => exitRoom());

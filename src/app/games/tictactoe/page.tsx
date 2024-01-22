@@ -12,14 +12,13 @@ import {
 } from "@nextui-org/react";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
 import PopoverButton from "@/components/popoverButton";
-import { useAppDispatch, useAppSelector } from "../../redux/hook";
+import { useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { selectRooms } from "@/app/redux/roomsSlice";
-import { selectRoom, updateBoard } from "@/app/redux/roomSlice";
+import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
 
@@ -105,50 +104,8 @@ export default () => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
 
-    const dispatch = useAppDispatch();
-
-    const checkGameOver = (boardData: IGameCell[][]) => {
-        const lineArray = [
-            // 가로 3줄
-            [boardData[0][0], boardData[0][1], boardData[0][2]],
-            [boardData[1][0], boardData[1][1], boardData[1][2]],
-            [boardData[2][0], boardData[2][1], boardData[2][2]],
-            // 세로 3줄
-            [boardData[0][0], boardData[1][0], boardData[2][0]],
-            [boardData[0][1], boardData[1][1], boardData[2][1]],
-            [boardData[0][2], boardData[1][2], boardData[2][2]],
-            // 대각선 2줄
-            [boardData[0][0], boardData[1][1], boardData[2][2]],
-            [boardData[0][2], boardData[1][1], boardData[2][0]],
-        ];
-        for (let i = 0; i < lineArray.length; i++) {
-            if (
-                lineArray[i].every(
-                    (item) => item.player.trim() === room.currentTurn.trim()
-                )
-            ) {
-                return player.name;
-            }
-        }
-
-        let cellArray = boardData.reduce(function (
-            prev: IGameCell[],
-            next: IGameCell[]
-        ) {
-            return prev.concat(next);
-        });
-
-        if (cellArray.every((cell: IGameCell) => cell.value)) {
-            return "drow";
-        }
-
-        return "";
-    };
-
     const onClick = (y: number, x: number) => {
-        dispatch(updateBoard({ y: y, x: x, player: player }));
-
-        socket.emit("sendRoom", room);
+        socket.emit("turnEnd", { y, x, player, room });
     };
 
     const resetBoard = () => {};
