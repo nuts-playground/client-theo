@@ -1,7 +1,7 @@
 import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectPlayer, setPlayer } from "@/app/redux/playerSlice";
-import { selectRoom, setRoom } from "@/app/redux/roomSlice";
+import { selectRoom } from "@/app/redux/roomSlice";
 import { User, Divider, Button } from "@nextui-org/react";
 
 export const Room = () => {

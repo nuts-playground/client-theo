@@ -1,103 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
-import {
-    Button,
-    Input,
-    Modal,
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-    useDisclosure,
-} from "@nextui-org/react";
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
-import { useState } from "react";
-import { GameBoard, createGridBoard, IGameCell } from "@/components/gameBoard";
-import PopoverButton from "@/components/popoverButton";
+import { GameBoard, createGridBoard } from "@/components/gameBoard";
 import { useAppSelector } from "../../redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
-
-const GameLobby = () => {
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-    const [roomName, setRoomName] = useState<string>("");
-
-    const player = useAppSelector(selectPlayer);
-    const room = useAppSelector(selectRoom);
-    const socket = useAppSelector(selectSocket);
-
-    const createRoom = () => {
-        setRoomName("");
-        onClose();
-        socket.emit("createRoom", {
-            name: roomName,
-            player: player,
-            boardData: createGridBoard(3, 3),
-            currentTurn: player.name,
-            winner: "",
-        });
-    };
-
-    return (
-        <div>
-            {room.id ? (
-                <Room />
-            ) : (
-                <>
-                    <Button
-                        className="w-full"
-                        type="button"
-                        color="primary"
-                        size="lg"
-                        onPress={onOpen}
-                    >
-                        Create room
-                    </Button>
-                    <Modal
-                        isOpen={isOpen}
-                        onOpenChange={onOpenChange}
-                        size="sm"
-                    >
-                        <ModalContent>
-                            <ModalHeader className="flex flex-col gap-1">
-                                Create room
-                            </ModalHeader>
-                            <ModalBody>
-                                <Input
-                                    className="grow mr-2"
-                                    type="text"
-                                    color="primary"
-                                    size="sm"
-                                    value={roomName}
-                                    placeholder="Please enter the room name"
-                                    onChange={(
-                                        e: React.ChangeEvent<HTMLInputElement>
-                                    ) => {
-                                        setRoomName(e.target.value);
-                                    }}
-                                />
-                            </ModalBody>
-                            <ModalFooter>
-                                <PopoverButton
-                                    condition={Boolean(roomName)}
-                                    onClick={createRoom}
-                                    buttonText="Create"
-                                    popoverTitle="The room name is empty."
-                                    popoverText="Please enter room name for multiplayer."
-                                    type="button"
-                                />
-                            </ModalFooter>
-                        </ModalContent>
-                    </Modal>
-                </>
-            )}
-        </div>
-    );
-};
 
 export default () => {
     const room = useAppSelector(selectRoom);
@@ -120,38 +31,9 @@ export default () => {
                 ></GameBoard>
             </GameSection>
             <StatusSection title="TIC-TAC-TOE">
-                <>
-                    {room.id ? <Room /> : <RoomList />}
+                {room.id ? <Room /> : <RoomList />}
 
-                    {/* {room.isStart ? (
-                        <div className="flex items-end text-6xl font-bold">
-                            <span className="relative">
-                                {players[0]}
-                                {currentPlayer === players[0] ? (
-                                    <div className="absolute text-2xl left-1/2 whitespace-nowrap -translate-x-1/2">
-                                        <motion.div layout layoutId="player">
-                                            {players[0]}'s turn!
-                                        </motion.div>
-                                    </div>
-                                ) : null}
-                            </span>
-                            <span className="mx-1 text-base">VS</span>
-                            <span className="relative">
-                                {players[1]}
-                                {currentPlayer === players[1] ? (
-                                    <div className="absolute text-2xl left-1/2 whitespace-nowrap -translate-x-1/2">
-                                        <motion.div layout layoutId="player">
-                                            {players[1]}'s turn!
-                                        </motion.div>
-                                    </div>
-                                ) : null}
-                            </span>
-                        </div>
-                    ) : null} */}
-
-                    {/* {Object.keys(room.players).some((id) => {
-                        return room.players[id].name === room.winner;
-                    }) ? (
+                {/* {room.winner ? (
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -176,8 +58,7 @@ export default () => {
                                 </motion.button>
                             </motion.div>
                         </motion.div>
-                    ) : null} */}
-
+                    ) : null}
                     {room.winner === "drow" ? (
                         <motion.div
                             initial={{ opacity: 0 }}
@@ -203,8 +84,7 @@ export default () => {
                                 </motion.button>
                             </motion.div>
                         </motion.div>
-                    ) : null}
-                </>
+                    ) : null} */}
             </StatusSection>
         </>
     );

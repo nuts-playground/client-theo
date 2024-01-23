@@ -1,7 +1,5 @@
-import { useAppSelector } from "@/app/redux/hook";
 import GameCard from "./gameCard";
 import Link from "next/link";
-import { selectPlayer } from "@/app/redux/playerSlice";
 const dummyGameList = [
     {
         id: "tictactoe",

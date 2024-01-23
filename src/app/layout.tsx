@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store";
 import { useEffect } from "react";
 import { io } from "socket.io-client";
-import { useAppDispatch, useAppSelector } from "./redux/hook";
+import { useAppDispatch } from "./redux/hook";
 import { setPlayer } from "./redux/playerSlice";
 import { setSocket } from "./redux/socketSlice";
 import { setPlayers } from "./redux/playersSlice";

@@ -1,6 +1,6 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Input, Button } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 import PopoverButton from "./popoverButton";
 

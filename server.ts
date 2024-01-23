@@ -18,7 +18,7 @@ const players: IPlayer[] = [];
 const connectedId: string[] = [];
 
 const checkGameOver = (
-    room: IRoom,
+    marker: string,
     player: IPlayer,
     boardData: IGameCell[][]
 ) => {
@@ -37,11 +37,7 @@ const checkGameOver = (
     ];
     for (let i = 0; i < lineArray.length; i++) {
         console.log(lineArray[i]);
-        if (
-            lineArray[i].every(
-                (item) => item.player.trim() === room.currentTurn.trim()
-            )
-        ) {
+        if (lineArray[i].every((item) => item.player === marker)) {
             return player.name;
         }
     }
@@ -168,7 +164,7 @@ io.on("connection", (socket) => {
         data.room.boardData[data.y][data.x].player =
             data.room.master === data.player.name ? "O" : "X";
         data.room.winner = checkGameOver(
-            data.room,
+            data.room.boardData[data.y][data.x].player,
             data.player,
             data.room.boardData
         );
