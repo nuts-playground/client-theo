@@ -53,7 +53,6 @@ const checkGameOver = (
         return "drow";
     }
 
-    console.log("여기만 반환?");
     return "";
 };
 
@@ -98,18 +97,25 @@ io.on("connection", (socket) => {
     });
 
     const sendRoom = () => {
-        Object.keys(room.players).forEach((id) => {
-            socket.to(id).emit("sendRoom", room);
-        });
+        if (room.id) {
+            Object.keys(room.players).forEach((id) => {
+                socket.to(id).emit("sendRoom", room);
+            });
+        }
+
         socket.emit("sendRoom", room);
     };
 
     const exitRoom = () => {
         if (!room.id) return false;
         delete room.players[socket.id];
-        if (!room.players.length) {
+        if (!Object.keys(room.players).length) {
             const roomIndex = rooms.findIndex((item) => item.id === room.id);
             rooms.splice(roomIndex);
+        } else {
+            sendRoom();
+            room = {} as IRoom;
+            sendRoom();
         }
     };
 
@@ -152,8 +158,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("turnEnd", (data) => {
-        console.log(data);
-        console.log(data.room.currentTurn, data.player.name);
         if (
             data.room.boardData[data.y][data.x].value ||
             data.room.currentTurn !== data.player.name
@@ -178,6 +182,13 @@ io.on("connection", (socket) => {
         sendRoom();
     });
 
+    socket.on("resetRoom", (boardData: IGameCell[][]) => {
+        room.boardData = boardData;
+        room.winner = "";
+        room.currentTurn = room.master;
+        sendRoom();
+    });
+
     socket.on("exitRoom", () => exitRoom());
 
     socket.on("sendRoom", (roomData) => {
@@ -194,7 +205,6 @@ io.on("connection", (socket) => {
         );
 
         const idIndex = connectedId.findIndex((id) => id === socket.id);
-        console.log(connectedId);
         connectedId.splice(idIndex);
         players.splice(playerIndex);
         sendPlayers();

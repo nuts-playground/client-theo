@@ -8,7 +8,7 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "node": "ts-node server.ts"
+        "node": "ts-node socket/server.ts"
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^6.5.1",
