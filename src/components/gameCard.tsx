@@ -1,40 +1,44 @@
 import Image from "next/image";
+import { Card, CardHeader, CardFooter, Chip } from "@nextui-org/react";
 
-export default ({
-    title,
-    tags,
-    id,
-}: {
-    title: String;
-    tags: String[];
+interface IGameCard {
+    title: string;
+    tags: string[];
     id: string;
-}) => {
+}
+
+export default ({ title, tags, id }: IGameCard) => {
     return (
-        <div
-            className={`relative h-48 border rounded-xl border-gray-400 overflow-hidden`}
-        >
-            <Image
-                className="absolute inset-0 w-full h-full"
-                src={`/images/bg_${id}.jpg`}
-                alt="title"
-                width={100}
-                height={100}
-            />
-            <div className="absolute inset-0 flex flex-col justify-end p-4 bg-[rgba(0,0,0,0.4)]">
-                <h3 className="mb-1 text-2xl font-bold text-white">{title}</h3>
+        <Card className="col-span-12 sm:col-span-4 h-[300px]">
+            <CardHeader className="absolute z-10 top-1 flex-col !items-start">
+                <p className="text-tiny text-white/60 uppercase font-bold">
+                    What to watch
+                </p>
+                <h4 className="text-white font-medium text-large">{title}</h4>
+            </CardHeader>
+            <div className="relative h-full">
+                <Image
+                    width={100}
+                    height={100}
+                    alt={title}
+                    className="z-0 w-full h-full object-cover"
+                    src={`/images/bg_${id}.jpg`}
+                />
+                <div className="absolute inset-0 bg-black opacity-50"></div>
+            </div>
+            <CardFooter className="absolute bg-white/30 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-between">
                 <ul className="flex space-x-2">
-                    {tags.map((tag, index) => {
+                    {tags.map((tag) => {
                         return (
-                            <li
-                                className="px-2 text-sm rounded-xl border border-gray-100 text-white"
-                                key={index}
-                            >
-                                {tag}
+                            <li>
+                                <Chip color="primary" size="sm">
+                                    {tag}
+                                </Chip>
                             </li>
                         );
                     })}
                 </ul>
-            </div>
-        </div>
+            </CardFooter>
+        </Card>
     );
 };

@@ -71,7 +71,9 @@ export default function RootLayout({
                     <Provider store={store}>
                         <div className="flex items-center flex-col w-screen h-screen bg-background">
                             <Header />
-                            <App>{children}</App>
+                            <main className="flex justify-between w-full h-full px-6 max-w-screen-xl">
+                                <App>{children}</App>
+                            </main>
                         </div>
                     </Provider>
                 </NextUIProvider>

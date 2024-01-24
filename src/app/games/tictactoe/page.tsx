@@ -4,7 +4,6 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
-    useDisclosure,
     ModalFooter,
     Button,
 } from "@nextui-org/react";
@@ -22,8 +21,6 @@ export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
-
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
 
     const onClick = (y: number, x: number) => {
         socket.emit("turnEnd", { y, x, player, room });
@@ -50,11 +47,7 @@ export default () => {
                 <>
                     {room.id ? <Room /> : <RoomList />}
 
-                    <Modal
-                        isOpen={Boolean(room.winner)}
-                        onOpenChange={onOpenChange}
-                        size="sm"
-                    >
+                    <Modal isOpen={Boolean(room.winner)} size="sm">
                         <ModalContent>
                             <ModalHeader className="flex flex-col gap-1">
                                 게임 결과

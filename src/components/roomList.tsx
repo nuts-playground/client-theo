@@ -59,7 +59,7 @@ export const RoomList = () => {
             <Listbox
                 className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
                 aria-label="Actions"
-                emptyContent="There are currently no rooms available. Please make a room."
+                emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
             >
                 {rooms.map((room: IRoom, index: number) => {
                     const isFull = Object.keys(room.players).length === 2;
@@ -104,7 +104,7 @@ export const RoomList = () => {
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
-                        Create room
+                        방 생성
                     </ModalHeader>
                     <ModalBody className="pb-4">
                         <form
@@ -114,16 +114,16 @@ export const RoomList = () => {
                             <Input
                                 className="w-80"
                                 color="primary"
-                                placeholder="Enter your name"
+                                placeholder="방 제목을 입력해주세요."
                                 radius="full"
                                 size="sm"
                                 {...register("roomName")}
                             />
                             <PopoverButton
                                 condition={watch("roomName")}
-                                buttonText="Create"
-                                popoverTitle="The room name is empty."
-                                popoverText="Please enter room name for multiplayer."
+                                buttonText="생성"
+                                popoverTitle="방 제목이 없습니다."
+                                popoverText="멀티플레이를 위해 방 제목을 입력해주세요."
                                 type="submit"
                             />
                         </form>

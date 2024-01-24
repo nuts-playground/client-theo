@@ -17,7 +17,7 @@ import { selectPlayer } from "@/app/redux/playerSlice";
 import { Join } from "@/components/join";
 
 const JoinModalButton = () => {
-    const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     return (
         <>
@@ -50,7 +50,9 @@ export const Header = () => {
                     </Link>
                 </NavbarBrand>
                 <NavbarItem key="Games">
-                    <Link href="/games/tictactoe">Tic-tac-toe</Link>
+                    <Link className="hover:underline" href="/games">
+                        Games
+                    </Link>
                 </NavbarItem>
             </NavbarContent>
             <NavbarContent justify="end">

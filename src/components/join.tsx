@@ -20,7 +20,7 @@ export const Join = () => {
             <Input
                 className="w-80"
                 color="primary"
-                placeholder="Enter your name"
+                placeholder="이름을 입력해주세요."
                 radius="full"
                 size="sm"
                 {...register("name")}
@@ -29,8 +29,8 @@ export const Join = () => {
                 condition={watch("name")}
                 type="submit"
                 buttonText="JOIN"
-                popoverTitle="The name is empty."
-                popoverText="Please enter name for multiplayer."
+                popoverTitle="이름 없습니다."
+                popoverText="멀티플레이를 위해 이름을 입력해주세요."
             />
         </form>
     );
