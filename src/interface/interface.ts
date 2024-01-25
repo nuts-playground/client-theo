@@ -1,7 +1,7 @@
 import { IGameCell } from "@/components/gameBoard";
 
 export interface IPlayer {
-    [key: string]: any;
+    [key: string]: string | boolean;
     id: string;
     name: string;
     isReady: boolean;
@@ -18,6 +18,6 @@ export interface IRoom {
     isStart: boolean;
     boardData: IGameCell[][];
     currentTurn: string;
-    winner: string | "drow" | "";
+    winner: string;
     master: string;
 }

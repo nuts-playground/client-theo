@@ -7,7 +7,7 @@ import {
 
 interface IPopoverButton {
     condition: Boolean;
-    onClick?: () => void;
+    onClick?(): () => void;
     buttonText: String;
     popoverTitle: String;
     popoverText: String;

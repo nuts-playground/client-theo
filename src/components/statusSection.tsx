@@ -1,6 +1,6 @@
 interface IStatusSection {
     children: React.ReactElement;
-    title: String;
+    title: string;
 }
 export default ({ children, title }: IStatusSection) => {
     return (

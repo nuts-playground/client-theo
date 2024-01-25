@@ -4,7 +4,6 @@ import { Join } from "@/components/join";
 import { useAppSelector } from "./redux/hook";
 import { selectPlayer } from "./redux/playerSlice";
 import StatusSection from "@/components/statusSection";
-import { Button } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";

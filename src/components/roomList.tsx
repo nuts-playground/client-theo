@@ -45,15 +45,6 @@ export const RoomList = () => {
         });
     };
 
-    const openCreateRoomModal = () => {
-        if (player.id) {
-            onOpen();
-        } else {
-            console.log("ss");
-            socket.emit("notJoined");
-        }
-    };
-
     return (
         <>
             <Listbox

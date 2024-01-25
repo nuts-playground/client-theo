@@ -3,16 +3,16 @@ import { motion } from "framer-motion";
 
 export interface IGameCell {
     player: string;
-    value: true | false;
+    value: boolean;
     focus: {
         player: string;
-        isFocus: true | false;
+        isFocus: boolean;
     };
 }
 
 interface IGameBoard {
     gridBoard: IGameCell[][];
-    cellClick: Function;
+    cellClick: (x: number, y: number) => void;
     isStart: Boolean;
 }
 
@@ -58,11 +58,7 @@ export const GameBoard = ({ gridBoard, cellClick, isStart }: IGameBoard) => {
                             </td>
                         );
                     });
-                    return (
-                        <tr className="" key={yIndex}>
-                            {row}
-                        </tr>
-                    );
+                    return <tr key={yIndex}>{row}</tr>;
                 })}
             </tbody>
         </table>

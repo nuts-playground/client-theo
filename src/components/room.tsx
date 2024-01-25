@@ -8,7 +8,6 @@ export const Room = () => {
     const socket = useAppSelector(selectSocket);
     const player = useAppSelector(selectPlayer);
     const room = useAppSelector(selectRoom);
-
     const dispatch = useAppDispatch();
 
     const exitRoom = () => {
@@ -28,7 +27,7 @@ export const Room = () => {
     return (
         <>
             <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {Object.keys(room.players).map((id, index: number) => {
+                {Object.keys(room.players).map((id, index) => {
                     return (
                         <div
                             className="flex items-center space-x-4"
@@ -70,7 +69,7 @@ export const Room = () => {
                             player.isReady
                                 ? player.name === room.master &&
                                   Object.keys(room.players).every(
-                                      (id: string) => room.players[id].isReady
+                                      (id) => room.players[id].isReady
                                   )
                                     ? "primary"
                                     : "success"
@@ -80,7 +79,7 @@ export const Room = () => {
                         onPress={() => {
                             player.name === room.master &&
                             Object.keys(room.players).every(
-                                (id: string) => room.players[id].isReady
+                                (id) => room.players[id].isReady
                             )
                                 ? gameStart()
                                 : readyToggle();
@@ -89,7 +88,7 @@ export const Room = () => {
                         {player.isReady
                             ? player.name === room.master &&
                               Object.keys(room.players).every(
-                                  (id: string) => room.players[id].isReady
+                                  (id) => room.players[id].isReady
                               )
                                 ? "Start!"
                                 : "OK!"
