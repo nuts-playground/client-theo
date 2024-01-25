@@ -18,8 +18,15 @@ export default function Home() {
                     <span className="text-blue-600">real time</span> at Theo
                     Playground
                 </p>
-                <p className="mb-4 text-gray-400">
-                    Made by THEO(MY NAME IS HOMIN)
+                <p className="flex space-x-1 mb-4 text-gray-400">
+                    <span>제작자:</span>
+                    <Link
+                        className="hover:text-white transition"
+                        href="https://portfolio.mynameishomin.com/"
+                        target="_blank"
+                    >
+                        테오&lt;My name is homin&gt;
+                    </Link>
                 </p>
                 {player.id ? (
                     <div>
@@ -38,7 +45,7 @@ export default function Home() {
                     <Join />
                 )}
             </div>
-            <StatusSection title="ONLINE PLAYERS">
+            <StatusSection title="접속중인 플레이어">
                 <PlayerList />
             </StatusSection>
         </div>

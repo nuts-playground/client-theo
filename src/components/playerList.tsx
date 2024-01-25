@@ -17,7 +17,7 @@ export const PlayerList = () => {
         <Listbox
             className="mb-2 gap-0 bg-content1 max-w-full overflow-visible shadow-small rounded-medium"
             aria-label="Actions"
-            emptyContent="There are no players currently online."
+            emptyContent="현재 접속중인 플레이어가 없습니다."
         >
             {players.map((player) => {
                 return (
