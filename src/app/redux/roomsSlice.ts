@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { IRoom } from "@/interface/interface";
+import { IRooms } from "@/interface/interface";
 
 const initialState = {
-    rooms: [] as IRoom[],
+    rooms: {} as IRooms,
 };
 
 export const rooms = createSlice({

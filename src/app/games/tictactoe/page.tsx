@@ -43,7 +43,7 @@ export default () => {
                     isStart={room.isStart}
                 ></GameBoard>
             </GameSection>
-            <StatusSection title="TIC-TAC-TOE">
+            <StatusSection title="틱택토">
                 <>
                     {room.id ? <Room /> : <RoomList />}
 

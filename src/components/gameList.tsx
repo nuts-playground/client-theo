@@ -6,6 +6,11 @@ const dummyGameList = [
         title: "틱택토",
         tags: ["2인용", "쉬운"],
     },
+    {
+        id: "guessing",
+        title: "스무고개",
+        tags: ["2 ~ 8인용", "쉬운"],
+    },
 ];
 
 export default () => {

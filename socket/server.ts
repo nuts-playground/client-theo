@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { IPlayer, IPlayers, IRoom } from "@/interface/interface";
+import { IPlayer, IPlayers, IRoom, IRooms } from "@/interface/interface";
 import { IGameCell } from "@/components/gameBoard";
 
 const httpServer = http.createServer();
@@ -13,7 +13,8 @@ const io = new Server(httpServer, {
     },
 });
 
-const rooms: IRoom[] = [];
+// const rooms: IRoom[] = [];
+const rooms: IRooms = {} as IRooms;
 const players: IPlayer[] = [];
 const connectedId: string[] = [];
 
@@ -110,8 +111,10 @@ io.on("connection", (socket) => {
         if (!room.id) return false;
         delete room.players[socket.id];
         if (!Object.keys(room.players).length) {
-            const roomIndex = rooms.findIndex((item) => item.id === room.id);
-            rooms.splice(roomIndex);
+            const roomIndex = rooms[room.game].findIndex(
+                (item) => item.id === room.id
+            );
+            rooms[room.game].splice(roomIndex);
             room = {
                 id: 0,
             } as IRoom;
@@ -146,19 +149,24 @@ io.on("connection", (socket) => {
             currentTurn: roomData.currentTurn,
             winner: "",
             master: roomData.player.name,
+            game: roomData.game,
         };
         room = newRoom;
-        rooms.push(room);
+        if (!rooms[roomData.game]) rooms[roomData.game] = [] as IRoom[];
+        rooms[roomData.game].push(room);
         sendRoom();
         sendRooms();
     });
 
     socket.on("joinRoom", (roomData) => {
-        const roomIndex = rooms.findIndex((room) => room.id === roomData.id);
+        const roomIndex = rooms[roomData.game].findIndex(
+            (room) => room.id === roomData.id
+        );
 
-        if (Object.keys(rooms[roomIndex].players).length < 2) {
-            rooms[roomIndex].players[roomData.player.id] = roomData.player;
-            room = rooms[roomIndex];
+        if (Object.keys(rooms[roomData.game][roomIndex].players).length < 2) {
+            rooms[roomData.game][roomIndex].players[roomData.player.id] =
+                roomData.player;
+            room = rooms[roomData.game][roomIndex];
             sendRoom();
         }
         sendRooms();

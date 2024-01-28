@@ -35,6 +35,7 @@ export const RoomList = () => {
             boardData: createGridBoard(3, 3),
             currentTurn: player.name,
             winner: "",
+            game: "tictactoe",
         });
     };
 
@@ -42,6 +43,7 @@ export const RoomList = () => {
         socket.emit("joinRoom", {
             id: roomId,
             player: player,
+            game: "tictactoe",
         });
     };
 
@@ -52,7 +54,7 @@ export const RoomList = () => {
                 aria-label="Actions"
                 emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
             >
-                {rooms.map((room: IRoom, index: number) => {
+                {rooms["tictactoe"]?.map((room: IRoom, index: number) => {
                     const isFull = Object.keys(room.players).length === 2;
                     return (
                         <ListboxItem

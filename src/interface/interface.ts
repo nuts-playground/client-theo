@@ -16,10 +16,15 @@ export interface IRoom {
     [key: string]: string | number | object | boolean;
     id: number;
     name: string;
+    game: string;
     players: IPlayers;
     isStart: boolean;
     boardData: IGameCell[][];
     currentTurn: string;
     winner: string;
     master: string;
+}
+
+export interface IRooms {
+    [key: string]: IRoom[];
 }
