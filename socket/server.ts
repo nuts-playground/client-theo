@@ -112,9 +112,16 @@ io.on("connection", (socket) => {
         if (!Object.keys(room.players).length) {
             const roomIndex = rooms.findIndex((item) => item.id === room.id);
             rooms.splice(roomIndex);
+            room = {
+                id: 0,
+            } as IRoom;
+            sendRoom();
+            sendRooms();
         } else {
             sendRoom();
-            room = {} as IRoom;
+            room = {
+                id: 0,
+            } as IRoom;
             sendRoom();
         }
     };
