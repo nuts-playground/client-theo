@@ -68,7 +68,9 @@ export const RoomList = () => {
                                 .map((id: string) => room.players[id].name)
                                 .join(", ")}`}
                             onClick={() => {
-                                joinRoom(room.id);
+                                if (player.id) {
+                                    joinRoom(room.id);
+                                }
                             }}
                         >
                             {room.name}
@@ -86,7 +88,7 @@ export const RoomList = () => {
                     radius="full"
                     size="lg"
                 >
-                    Create Room
+                    방 생성
                 </Button>
             ) : (
                 <Join />

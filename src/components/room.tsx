@@ -60,7 +60,7 @@ export const Room = () => {
                         size="lg"
                         onPress={exitRoom}
                     >
-                        Exit
+                        방 나가기
                     </Button>
 
                     <Button
@@ -91,9 +91,9 @@ export const Room = () => {
                               Object.keys(room.players).every(
                                   (id) => room.players[id].isReady
                               )
-                                ? "Start!"
-                                : "OK!"
-                            : "Ready"}
+                                ? "시작"
+                                : "준비 완료!"
+                            : "준비"}
                     </Button>
                 </div>
             )}

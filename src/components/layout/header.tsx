@@ -26,7 +26,7 @@ const JoinModalButton = () => {
     return (
         <>
             <Button color="primary" radius="full" onClick={onOpen}>
-                JOIN
+                입장
             </Button>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">
                 <ModalContent>

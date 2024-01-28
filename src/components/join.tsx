@@ -28,7 +28,7 @@ export const Join = () => {
             <PopoverButton
                 condition={watch("name")}
                 type="submit"
-                buttonText="JOIN"
+                buttonText="입장"
                 popoverTitle="이름 없습니다."
                 popoverText="멀티플레이를 위해 이름을 입력해주세요."
             />
