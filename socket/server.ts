@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { IPlayer, IRoom } from "@/interface/interface";
+import { IPlayer, IPlayers, IRoom } from "@/interface/interface";
 import { IGameCell } from "@/components/gameBoard";
 
 const httpServer = http.createServer();
@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("createRoom", (roomData) => {
-        const players = {} as any;
+        const players: IPlayers = {};
         players[roomData.player.id] = roomData.player;
         const newRoom = {
             id: Date.now(),

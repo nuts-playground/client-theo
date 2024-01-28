@@ -8,13 +8,15 @@ export interface IPlayer {
     location: "Lobby" | "";
 }
 
+export interface IPlayers {
+    [key: string]: IPlayer;
+}
+
 export interface IRoom {
-    [key: string]: any;
+    [key: string]: string | number | object | boolean;
     id: number;
     name: string;
-    players: {
-        [key: string]: IPlayer;
-    };
+    players: IPlayers;
     isStart: boolean;
     boardData: IGameCell[][];
     currentTurn: string;
