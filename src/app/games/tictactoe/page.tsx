@@ -17,6 +17,8 @@ import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
 
+const GAME_NAME = "tictactoe";
+
 export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);
@@ -45,7 +47,7 @@ export default () => {
             </GameSection>
             <StatusSection title="틱택토">
                 <>
-                    {room.id ? <Room /> : <RoomList />}
+                    {room.id ? <Room /> : <RoomList game={GAME_NAME} />}
 
                     <Modal isOpen={Boolean(room.winner)} size="sm">
                         <ModalContent>

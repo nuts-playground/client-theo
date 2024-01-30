@@ -20,7 +20,11 @@ import { useForm } from "react-hook-form";
 import { createGridBoard } from "./gameBoard";
 import { Join } from "./join";
 
-export const RoomList = () => {
+interface IGameList {
+    game: string;
+}
+
+export const RoomList = ({ game }: IGameList) => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
@@ -35,7 +39,7 @@ export const RoomList = () => {
             boardData: createGridBoard(3, 3),
             currentTurn: player.name,
             winner: "",
-            game: "tictactoe",
+            game: game,
         });
     };
 
@@ -43,7 +47,7 @@ export const RoomList = () => {
         socket.emit("joinRoom", {
             id: roomId,
             player: player,
-            game: "tictactoe",
+            game: game,
         });
     };
 
@@ -54,7 +58,7 @@ export const RoomList = () => {
                 aria-label="Actions"
                 emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
             >
-                {rooms["tictactoe"]?.map((room: IRoom, index: number) => {
+                {rooms[game]?.map((room: IRoom, index: number) => {
                     const isFull = Object.keys(room.players).length === 2;
                     return (
                         <ListboxItem
