@@ -6,12 +6,14 @@ import {
 } from "@nextui-org/react";
 
 interface IPopoverButton {
-    condition: Boolean;
-    onClick?(): () => void;
-    buttonText: String;
-    popoverTitle: String;
-    popoverText: String;
+    condition: boolean;
+    buttonText: string;
+    popoverTitle: string;
+    popoverText: string;
+    size?: "lg" | "sm" | "md" | undefined;
+    radius?: "lg" | "sm" | "md" | "none" | "full" | undefined;
     type: "button" | "reset" | "submit" | undefined;
+    onClick?(): () => void;
 }
 
 export default ({
@@ -21,16 +23,18 @@ export default ({
     popoverTitle,
     popoverText,
     type,
+    size,
+    radius,
 }: IPopoverButton) => {
     return (
         <>
             {condition ? (
                 <Button
+                    className="w-full"
                     type={type}
                     color="primary"
-                    size="lg"
-                    className="h-full"
-                    radius="full"
+                    size={size}
+                    radius={radius}
                     onPress={onClick}
                 >
                     {buttonText}
@@ -39,11 +43,11 @@ export default ({
                 <Popover>
                     <PopoverTrigger>
                         <Button
+                            className="w-full"
                             type={type}
                             color="primary"
-                            size="lg"
-                            className="h-full"
-                            radius="full"
+                            size={size}
+                            radius={radius}
                         >
                             {buttonText}
                         </Button>
