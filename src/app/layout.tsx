@@ -64,7 +64,7 @@ export default function RootLayout({
             <body className={orbit.className}>
                 <NextUIProvider>
                     <Provider store={store}>
-                        <div className="flex items-center flex-col w-screen h-screen bg-background">
+                        <div className="flex items-center flex-col bg-background">
                             <Header />
                             <main className="flex justify-between w-full h-full px-6 max-w-screen-xl">
                                 <App>{children}</App>

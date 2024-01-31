@@ -1,8 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Input } from "@nextui-org/react";
+import { Input, Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
-import PopoverButton from "./popoverButton";
 
 export const Join = () => {
     const socket = useAppSelector(selectSocket);
@@ -16,22 +15,36 @@ export const Join = () => {
     };
 
     return (
-        <form className="flex space-x-1 h-12" onSubmit={handleSubmit(onJoin)}>
+        <form
+            className="w-full sm:flex sm:items-end"
+            onSubmit={handleSubmit(onJoin)}
+        >
             <Input
-                className="w-80"
+                className="mb-2 sm:mb-0"
                 color="primary"
-                placeholder="이름을 입력해주세요."
-                radius="full"
+                label="이름"
+                placeholder="홍길동"
+                variant="underlined"
                 size="sm"
                 {...register("name")}
             />
-            <PopoverButton
-                condition={watch("name")}
-                type="submit"
-                buttonText="입장"
-                popoverTitle="이름 없습니다."
-                popoverText="멀티플레이를 위해 이름을 입력해주세요."
-            />
+            <Button
+                className="w-full sm:hidden"
+                size="sm"
+                isDisabled={!Boolean(watch("name"))}
+                color={!Boolean(watch("name")) ? "default" : "primary"}
+            >
+                입장
+            </Button>
+            <Button
+                className="hidden w-24 sm:block"
+                size="md"
+                radius="sm"
+                isDisabled={!Boolean(watch("name"))}
+                color={!Boolean(watch("name")) ? "default" : "primary"}
+            >
+                입장
+            </Button>
         </form>
     );
 };
