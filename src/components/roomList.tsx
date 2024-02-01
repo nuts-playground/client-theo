@@ -105,26 +105,33 @@ export const RoomList = ({ game }: IGameList) => {
                     <ModalHeader className="flex flex-col gap-1">
                         방 생성
                     </ModalHeader>
-                    <ModalBody className="pb-4">
+                    <ModalBody className="pt-0 pb-6">
                         <form
-                            className="flex space-x-1 h-12"
+                            className="flex items-end"
                             onSubmit={handleSubmit(createRoom)}
                         >
                             <Input
-                                className="w-80"
                                 color="primary"
-                                placeholder="방 제목을 입력해주세요."
-                                radius="full"
+                                label="방 제목"
+                                placeholder="나랑 한 판 붙자!"
                                 size="sm"
+                                variant="underlined"
                                 {...register("roomName")}
                             />
-                            <PopoverButton
-                                condition={watch("roomName")}
-                                buttonText="생성"
-                                popoverTitle="방 제목이 없습니다."
-                                popoverText="멀티플레이를 위해 방 제목을 입력해주세요."
+
+                            <Button
+                                className="sm:w-20"
+                                size="sm"
                                 type="submit"
-                            />
+                                isDisabled={!Boolean(watch("roomName"))}
+                                color={
+                                    !Boolean(watch("roomName"))
+                                        ? "default"
+                                        : "primary"
+                                }
+                            >
+                                만들기
+                            </Button>
                         </form>
                     </ModalBody>
                 </ModalContent>

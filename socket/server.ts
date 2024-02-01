@@ -89,7 +89,7 @@ io.on("connection", (socket) => {
             id: socket.id,
             name: playerName,
             isReady: false,
-            location: "Lobby",
+            location: "로비",
         };
         players.push(newPlayer);
         sendPlayers();

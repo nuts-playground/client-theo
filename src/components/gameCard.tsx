@@ -9,7 +9,7 @@ interface IGameCard {
 
 export default ({ title, tags, id }: IGameCard) => {
     return (
-        <Card className="col-span-12 sm:col-span-4 h-[300px]">
+        <Card className="col-span-12 sm:col-span-4 h-52">
             <CardHeader className="absolute z-10 top-1 flex-col !items-start">
                 <p className="text-tiny text-white/60 uppercase font-bold">
                     What to watch
