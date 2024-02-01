@@ -15,7 +15,7 @@ const dummyGameList = [
 
 export default () => {
     return (
-        <ul className="grid grid-cols-3 w-full gap-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-3 w-full gap-4">
             {dummyGameList.map((game, index) => {
                 return (
                     <li key={index}>

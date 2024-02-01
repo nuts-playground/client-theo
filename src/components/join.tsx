@@ -29,17 +29,9 @@ export const Join = () => {
                 {...register("name")}
             />
             <Button
-                className="w-full sm:hidden"
+                className="w-full sm:w-20"
                 size="sm"
-                isDisabled={!Boolean(watch("name"))}
-                color={!Boolean(watch("name")) ? "default" : "primary"}
-            >
-                입장
-            </Button>
-            <Button
-                className="hidden w-24 sm:block"
-                size="md"
-                radius="sm"
+                type="submit"
                 isDisabled={!Boolean(watch("name"))}
                 color={!Boolean(watch("name")) ? "default" : "primary"}
             >

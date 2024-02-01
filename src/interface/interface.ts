@@ -5,7 +5,7 @@ export interface IPlayer {
     id: string;
     name: string;
     isReady: boolean;
-    location: "Lobby" | "";
+    location: "로비" | "";
 }
 
 export interface IPlayers {

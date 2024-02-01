@@ -30,22 +30,7 @@ export default function Home() {
                 </div>
             </div>
             <div className="mb-20 space-y-20 sm:flex sm:items-start sm:space-y-0 sm:space-x-12 lg:flex-col lg:w-1/3 lg:space-x-0 lg:space-y-8">
-                {player.id ? (
-                    <div>
-                        <Link
-                            className="flex items-center space-x-2 hover:underline"
-                            href="/games"
-                        >
-                            게임 확인하기
-                            <FontAwesomeIcon
-                                className="mt-1 ml-2"
-                                icon={faAngleRight}
-                            />
-                        </Link>
-                    </div>
-                ) : (
-                    <Join />
-                )}
+                {player.id ? null : <Join />}
                 <section className="w-full sm:grow">
                     <h2 className="mb-2">접속중인 플레이어</h2>
                     <PlayerList />
