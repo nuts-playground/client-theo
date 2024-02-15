@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { IRoom } from "@/interface/interface";
+import { Room } from "@/interface/interface";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -58,7 +58,7 @@ export const RoomList = ({ game }: IGameList) => {
                 aria-label="Actions"
                 emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
             >
-                {rooms[game]?.map((room: IRoom, index: number) => {
+                {rooms[game]?.map((room: Room, index: number) => {
                     const isFull = Object.keys(room.players).length === 2;
                     return (
                         <ListboxItem

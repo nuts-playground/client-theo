@@ -16,6 +16,7 @@ import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
+import { TictactoeRoom } from "@/interface/interface";
 
 const GAME_NAME = "tictactoe";
 
@@ -23,6 +24,8 @@ export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
+
+    if (room.game === "tictactoe") room as TictactoeRoom;
 
     const onClick = (y: number, x: number) => {
         socket.emit("turnEnd", { y, x, player, room });

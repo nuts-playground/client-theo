@@ -18,34 +18,32 @@ import {
     TableRow,
     TableCell,
 } from "@nextui-org/react";
+import { selectPlayer } from "@/app/redux/playerSlice";
 
 const GAME_NAME = "guessing";
 //임시 게임 데이터
 const gameData = [
     {
-        index: 1,
         question: "사람인가요?",
-        answer: "네",
+        answer: true,
     },
     {
-        index: 2,
         question: "여자인가요?",
-        answer: "네",
+        answer: true,
     },
     {
-        index: 3,
         question: "50대 이하인가요?",
-        answer: "아니오",
+        answer: false,
     },
     {
-        index: 4,
         question: "살아계신가요?",
-        answer: "네",
+        answer: true,
     },
 ];
 
 export default () => {
     const room = useAppSelector(selectRoom);
+    const player = useAppSelector(selectPlayer);
     const { register, handleSubmit, watch, setValue } = useForm();
 
     return (
@@ -60,10 +58,10 @@ export default () => {
                             <TableColumn>답변</TableColumn>
                         </TableHeader>
                         <TableBody>
-                            {gameData.map((item) => {
+                            {gameData.map((item, index) => {
                                 return (
-                                    <TableRow key={item.index}>
-                                        <TableCell>{item.index}</TableCell>
+                                    <TableRow key={index}>
+                                        <TableCell>{index}</TableCell>
                                         <TableCell>{item.question}</TableCell>
                                         <TableCell>{item.answer}</TableCell>
                                     </TableRow>

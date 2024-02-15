@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { IPlayer, IPlayers, IRoom, IRooms } from "@/interface/interface";
+import { IPlayer, IPlayers, Room, Rooms } from "@/interface/interface";
 import { IGameCell } from "@/components/gameBoard";
 
 const httpServer = http.createServer();
@@ -13,8 +13,8 @@ const io = new Server(httpServer, {
     },
 });
 
-// const rooms: IRoom[] = [];
-const rooms: IRooms = {} as IRooms;
+// const rooms: Room[] = [];
+const rooms: Rooms = {} as Rooms;
 const players: IPlayer[] = [];
 const connectedId: string[] = [];
 
@@ -58,7 +58,7 @@ const checkGameOver = (
 };
 
 io.on("connection", (socket) => {
-    let room: IRoom = {} as IRoom;
+    let room: Room = {} as Room;
     connectedId.push(socket.id);
     console.log(`${connectedId.length}명 접속 중`);
 
@@ -117,14 +117,14 @@ io.on("connection", (socket) => {
             rooms[room.game].splice(roomIndex);
             room = {
                 id: 0,
-            } as IRoom;
+            } as Room;
             sendRoom();
             sendRooms();
         } else {
             sendRoom();
             room = {
                 id: 0,
-            } as IRoom;
+            } as Room;
             sendRoom();
         }
     };
@@ -152,7 +152,7 @@ io.on("connection", (socket) => {
             game: roomData.game,
         };
         room = newRoom;
-        if (!rooms[roomData.game]) rooms[roomData.game] = [] as IRoom[];
+        if (!rooms[roomData.game]) rooms[roomData.game] = [] as Room[];
         rooms[roomData.game].push(room);
         sendRoom();
         sendRooms();

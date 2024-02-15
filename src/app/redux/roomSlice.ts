@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "./store";
-import { IRoom } from "@/interface/interface";
+import { Room, TictactoeRoom } from "@/interface/interface";
 
-const initialState = {} as IRoom;
+const initialState = {} as Room;
 
 export const room = createSlice({
     name: "roomStore",
@@ -12,6 +12,11 @@ export const room = createSlice({
             Object.keys(payload).forEach((key) => {
                 state[key] = payload[key];
             });
+
+            switch (payload.game) {
+                case "tictactoe":
+                    state as TictactoeRoom;
+            }
             console.log(payload);
         },
     },
