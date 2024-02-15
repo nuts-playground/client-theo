@@ -41,16 +41,6 @@ const gameData = [
     },
 ];
 
-interface GuessingData {
-    answer: string;
-    history: [
-        {
-            question: string;
-            answer: boolean;
-        }
-    ];
-}
-
 export default () => {
     const room = useAppSelector(selectRoom);
     const player = useAppSelector(selectPlayer);

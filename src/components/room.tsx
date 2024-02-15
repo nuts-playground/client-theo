@@ -12,7 +12,6 @@ export const Room = () => {
 
     const exitRoom = () => {
         socket.emit("exitRoom");
-        console.log("skrkffo");
     };
 
     const readyToggle = () => {
