@@ -1,10 +1,10 @@
-import { IPlayer } from "@/interface/interface";
+import { Player } from "@/interface/interface";
 import { IGameCell } from "@/components/gameBoard";
 
 export const test = {};
 export const tictactoeCheckGameOver = (
     marker: string,
-    player: IPlayer,
+    player: Player,
     boardData: IGameCell[][]
 ) => {
     const lineArray = [

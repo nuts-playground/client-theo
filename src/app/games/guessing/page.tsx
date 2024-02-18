@@ -19,8 +19,13 @@ import {
     TableCell,
 } from "@nextui-org/react";
 import { selectPlayer } from "@/app/redux/playerSlice";
+import { Game } from "@/interface/interface";
 
-const GAME_NAME = "guessing";
+const game: Game = {
+    name: "guessing",
+    maxPlayers: 4,
+    minPlayers: 2,
+};
 //임시 게임 데이터
 const gameData = [
     {
@@ -101,7 +106,7 @@ export default () => {
                 </section>
             </GameSection>
             <StatusSection title="스무고개">
-                {room.id ? <Room /> : <RoomList game={GAME_NAME} />}
+                {room.id ? <Room /> : <RoomList game={game} />}
             </StatusSection>
         </>
     );

@@ -16,8 +16,13 @@ import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
-import { TictactoeRoom } from "@/interface/interface";
+import { Game, IGameCell, TictactoeRoom } from "@/interface/interface";
 
+const game: Game = {
+    name: "tictactoe",
+    maxPlayers: 2,
+    minPlayers: 2,
+};
 const GAME_NAME = "tictactoe";
 
 export default () => {
@@ -25,7 +30,7 @@ export default () => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
 
-    if (room.game === "tictactoe") room as TictactoeRoom;
+    if (room.game.name === "tictactoe") room as TictactoeRoom;
 
     const onClick = (y: number, x: number) => {
         socket.emit("turnEnd", { y, x, player, room });
@@ -43,14 +48,14 @@ export default () => {
         <>
             <GameSection>
                 <GameBoard
-                    gridBoard={room.boardData}
+                    gridBoard={room.boardData as IGameCell[][]}
                     cellClick={onClick}
                     isStart={room.isStart}
                 ></GameBoard>
             </GameSection>
             <StatusSection title="틱택토">
                 <>
-                    {room.id ? <Room /> : <RoomList game={GAME_NAME} />}
+                    {room.id ? <Room /> : <RoomList game={game} />}
 
                     <Modal isOpen={Boolean(room.winner)} size="sm">
                         <ModalContent>

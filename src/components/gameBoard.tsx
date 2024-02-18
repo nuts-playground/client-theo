@@ -1,14 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-
-export interface IGameCell {
-    player: string;
-    value: boolean;
-    focus: {
-        player: string;
-        isFocus: boolean;
-    };
-}
+import { IGameCell } from "@/interface/interface";
 
 interface IGameBoard {
     gridBoard: IGameCell[][];

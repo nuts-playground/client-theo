@@ -12,12 +12,6 @@ export const room = createSlice({
             Object.keys(payload).forEach((key) => {
                 state[key] = payload[key];
             });
-
-            switch (payload.game) {
-                case "tictactoe":
-                    state as TictactoeRoom;
-            }
-            console.log(payload);
         },
     },
 });

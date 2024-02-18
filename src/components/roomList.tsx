@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Room } from "@/interface/interface";
+import { Game, Room } from "@/interface/interface";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -15,16 +15,15 @@ import {
     Input,
     useDisclosure,
 } from "@nextui-org/react";
-import PopoverButton from "./popoverButton";
 import { useForm } from "react-hook-form";
 import { createGridBoard } from "./gameBoard";
 import { Join } from "./join";
 
-interface IGameList {
-    game: string;
+interface RoomListProps {
+    game: Game;
 }
 
-export const RoomList = ({ game }: IGameList) => {
+export const RoomList = ({ game }: RoomListProps) => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
@@ -39,7 +38,11 @@ export const RoomList = ({ game }: IGameList) => {
             boardData: createGridBoard(3, 3),
             currentTurn: player.name,
             winner: "",
-            game: game,
+            game: {
+                name: game.name,
+                maxPlayer: game.maxPlayers,
+                minPlayer: game.minPlayers,
+            },
         });
     };
 
@@ -47,7 +50,7 @@ export const RoomList = ({ game }: IGameList) => {
         socket.emit("joinRoom", {
             id: roomId,
             player: player,
-            game: game,
+            game: game.name,
         });
     };
 
@@ -58,7 +61,7 @@ export const RoomList = ({ game }: IGameList) => {
                 aria-label="Actions"
                 emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
             >
-                {rooms[game]?.map((room: Room, index: number) => {
+                {rooms[game.name]?.map((room: Room, index: number) => {
                     const isFull = Object.keys(room.players).length === 2;
                     return (
                         <ListboxItem

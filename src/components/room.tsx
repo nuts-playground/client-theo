@@ -50,7 +50,7 @@ export const Room = () => {
                     );
                 })}
             </div>
-            {room.isStart ? null : (
+            {!room.isStart ? (
                 <div className="flex space-x-2">
                     <Button
                         className="w-full"
@@ -78,24 +78,26 @@ export const Room = () => {
                         size="lg"
                         onPress={() => {
                             player.name === room.master &&
-                            Object.keys(room.players).every(
-                                (id) => room.players[id].isReady
-                            )
+                            room.game.maxPlayers ===
+                                Object.keys(room.players).filter((key) => {
+                                    return room.players[key].isReady;
+                                }).length
                                 ? gameStart()
                                 : readyToggle();
                         }}
                     >
                         {player.isReady
                             ? player.name === room.master &&
-                              Object.keys(room.players).every(
-                                  (id) => room.players[id].isReady
-                              )
+                              room.game.maxPlayers ===
+                                  Object.keys(room.players).filter((key) => {
+                                      return room.players[key].isReady;
+                                  }).length
                                 ? "시작"
-                                : "준비 완료!"
+                                : "준비 해제"
                             : "준비"}
                     </Button>
                 </div>
-            )}
+            ) : null}
         </>
     );
 };

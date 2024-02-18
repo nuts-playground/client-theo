@@ -1,6 +1,9 @@
-import { IGameCell } from "@/components/gameBoard";
+export interface IGameCell {
+    player: string;
+    value: boolean;
+}
 
-export interface IPlayer {
+export interface Player {
     [key: string]: string | boolean;
     id: string;
     name: string;
@@ -8,20 +11,27 @@ export interface IPlayer {
     location: "로비" | "";
 }
 
-export interface IPlayers {
-    [key: string]: IPlayer;
+export interface Players {
+    [key: string]: Player;
 }
 
-type RoomTypes = IGameCell[][] | GuessingData;
+export type GameData = IGameCell[][] | GuessingData;
+
+export interface Game {
+    name: string;
+    maxPlayers: number;
+    minPlayers: number;
+}
 
 export interface Room {
     [key: string]: string | number | object | boolean;
     id: number;
     name: string;
-    game: string;
-    players: IPlayers;
+    game: Game;
+    players: Players;
+    maxPlayer: number;
     isStart: boolean;
-    boardData: RoomTypes;
+    boardData: GameData;
     currentTurn: string;
     winner: string;
     master: string;

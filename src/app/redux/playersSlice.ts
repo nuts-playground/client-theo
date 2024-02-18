@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { IPlayer } from "@/interface/interface";
+import { Player } from "@/interface/interface";
 
 const initialState = {
-    players: [] as IPlayer[],
+    players: [] as Player[],
 };
 
 export const players = createSlice({

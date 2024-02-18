@@ -1,7 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { IPlayer, IPlayers, Room, Rooms } from "@/interface/interface";
-import { IGameCell } from "@/components/gameBoard";
+import { Player, Players, Room, Rooms, IGameCell } from "@/interface/interface";
 
 const httpServer = http.createServer();
 
@@ -13,14 +12,13 @@ const io = new Server(httpServer, {
     },
 });
 
-// const rooms: Room[] = [];
 const rooms: Rooms = {} as Rooms;
-const players: IPlayer[] = [];
+const players: Player[] = [];
 const connectedId: string[] = [];
 
 const checkGameOver = (
     marker: string,
-    player: IPlayer,
+    player: Player,
     boardData: IGameCell[][]
 ) => {
     const lineArray = [
@@ -37,7 +35,6 @@ const checkGameOver = (
         [boardData[0][2], boardData[1][1], boardData[2][0]],
     ];
     for (let i = 0; i < lineArray.length; i++) {
-        console.log(lineArray[i]);
         if (lineArray[i].every((item) => item.player === marker)) {
             return player.name;
         }
@@ -85,7 +82,7 @@ io.on("connection", (socket) => {
             return false;
         }
 
-        const newPlayer: IPlayer = {
+        const newPlayer: Player = {
             id: socket.id,
             name: playerName,
             isReady: false,
@@ -111,10 +108,10 @@ io.on("connection", (socket) => {
         if (!room.id) return false;
         delete room.players[socket.id];
         if (!Object.keys(room.players).length) {
-            const roomIndex = rooms[room.game].findIndex(
+            const roomIndex = rooms[room.game.name].findIndex(
                 (item) => item.id === room.id
             );
-            rooms[room.game].splice(roomIndex);
+            rooms[room.game.name].splice(roomIndex);
             room = {
                 id: 0,
             } as Room;
@@ -138,9 +135,9 @@ io.on("connection", (socket) => {
     });
 
     socket.on("createRoom", (roomData) => {
-        const players: IPlayers = {};
+        const players: Players = {};
         players[roomData.player.id] = roomData.player;
-        const newRoom = {
+        const newRoom: Room = {
             id: Date.now(),
             name: roomData.name,
             players: players,
@@ -149,13 +146,19 @@ io.on("connection", (socket) => {
             currentTurn: roomData.currentTurn,
             winner: "",
             master: roomData.player.name,
-            game: roomData.game,
+            game: {
+                name: roomData.game.name,
+                maxPlayers: roomData.game.maxPlayers,
+                minPlayers: roomData.game.minPlayers,
+            },
+            maxPlayer: roomData.game.maxPlayers,
         };
         room = newRoom;
         if (!rooms[roomData.game]) rooms[roomData.game] = [] as Room[];
         rooms[roomData.game].push(room);
         sendRoom();
         sendRooms();
+        console.log("방 생성", newRoom);
     });
 
     socket.on("joinRoom", (roomData) => {
