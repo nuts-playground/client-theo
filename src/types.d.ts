@@ -29,19 +29,18 @@ export interface Room {
     name: string;
     game: Game;
     players: Players;
-    maxPlayer: number;
     isStart: boolean;
-    boardData: GameData;
+    gameData: GameData;
     currentTurn: string;
     winner: string;
     master: string;
 }
 
 export interface TictactoeRoom extends Room {
-    boardData: IGameCell[][];
+    gameData: IGameCell[][];
 }
 
-interface GuessingData {
+export interface GuessingData {
     answer: string;
     history: [
         {
@@ -52,7 +51,7 @@ interface GuessingData {
 }
 
 export interface GuessingRoom extends Room {
-    boardData: GuessingData;
+    gameData: GuessingData;
 }
 
 export interface Rooms {

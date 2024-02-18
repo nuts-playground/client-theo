@@ -10,6 +10,17 @@ export const Room = () => {
     const room = useAppSelector(selectRoom);
     const dispatch = useAppDispatch();
 
+    const isMaster = player.name === room.master;
+
+    const playersId = Object.keys(room.players);
+    const readyPlayersLength = playersId.filter((key) => {
+        return room.players[key].isReady;
+    }).length;
+
+    const isReady =
+        playersId.length === readyPlayersLength &&
+        readyPlayersLength >= room.game.minPlayers;
+
     const exitRoom = () => {
         socket.emit("exitRoom");
     };
@@ -67,31 +78,18 @@ export const Room = () => {
                         type="button"
                         color={
                             player.isReady
-                                ? player.name === room.master &&
-                                  Object.keys(room.players).every(
-                                      (id) => room.players[id].isReady
-                                  )
+                                ? isMaster && isReady
                                     ? "primary"
                                     : "success"
                                 : "primary"
                         }
                         size="lg"
                         onPress={() => {
-                            player.name === room.master &&
-                            room.game.maxPlayers ===
-                                Object.keys(room.players).filter((key) => {
-                                    return room.players[key].isReady;
-                                }).length
-                                ? gameStart()
-                                : readyToggle();
+                            isMaster && isReady ? gameStart() : readyToggle();
                         }}
                     >
                         {player.isReady
-                            ? player.name === room.master &&
-                              room.game.maxPlayers ===
-                                  Object.keys(room.players).filter((key) => {
-                                      return room.players[key].isReady;
-                                  }).length
+                            ? isMaster && isReady
                                 ? "시작"
                                 : "준비 해제"
                             : "준비"}

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { type RootState } from "./store";
-import { Room, TictactoeRoom } from "@/interface/interface";
+import { GuessingData, IGameCell, Room, TictactoeRoom } from "@/types";
 
 const initialState = {} as Room;
 

@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { IGameCell } from "@/interface/interface";
+import { IGameCell } from "@/types";
 
 interface IGameBoard {
     gridBoard: IGameCell[][];

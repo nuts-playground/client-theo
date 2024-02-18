@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { Player } from "@/interface/interface";
+import { Player } from "@/types";
 
 const initialState: Player = {
     id: "",

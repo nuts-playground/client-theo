@@ -1,6 +1,6 @@
 import http from "http";
 import { Server } from "socket.io";
-import { Player, Players, Room, Rooms, IGameCell } from "@/interface/interface";
+import { Player, Players, Room, Rooms, IGameCell, GuessingData } from "@/types";
 
 const httpServer = http.createServer();
 
@@ -19,20 +19,20 @@ const connectedId: string[] = [];
 const checkGameOver = (
     marker: string,
     player: Player,
-    boardData: IGameCell[][]
+    gameData: IGameCell[][]
 ) => {
     const lineArray = [
         // 가로 3줄
-        [boardData[0][0], boardData[0][1], boardData[0][2]],
-        [boardData[1][0], boardData[1][1], boardData[1][2]],
-        [boardData[2][0], boardData[2][1], boardData[2][2]],
+        [gameData[0][0], gameData[0][1], gameData[0][2]],
+        [gameData[1][0], gameData[1][1], gameData[1][2]],
+        [gameData[2][0], gameData[2][1], gameData[2][2]],
         // 세로 3줄
-        [boardData[0][0], boardData[1][0], boardData[2][0]],
-        [boardData[0][1], boardData[1][1], boardData[2][1]],
-        [boardData[0][2], boardData[1][2], boardData[2][2]],
+        [gameData[0][0], gameData[1][0], gameData[2][0]],
+        [gameData[0][1], gameData[1][1], gameData[2][1]],
+        [gameData[0][2], gameData[1][2], gameData[2][2]],
         // 대각선 2줄
-        [boardData[0][0], boardData[1][1], boardData[2][2]],
-        [boardData[0][2], boardData[1][1], boardData[2][0]],
+        [gameData[0][0], gameData[1][1], gameData[2][2]],
+        [gameData[0][2], gameData[1][1], gameData[2][0]],
     ];
     for (let i = 0; i < lineArray.length; i++) {
         if (lineArray[i].every((item) => item.player === marker)) {
@@ -40,7 +40,7 @@ const checkGameOver = (
         }
     }
 
-    let cellArray = boardData.reduce(function (
+    let cellArray = gameData.reduce(function (
         prev: IGameCell[],
         next: IGameCell[]
     ) {
@@ -142,7 +142,7 @@ io.on("connection", (socket) => {
             name: roomData.name,
             players: players,
             isStart: false,
-            boardData: roomData.boardData,
+            gameData: roomData.gameData,
             currentTurn: roomData.currentTurn,
             winner: "",
             master: roomData.player.name,
@@ -151,11 +151,11 @@ io.on("connection", (socket) => {
                 maxPlayers: roomData.game.maxPlayers,
                 minPlayers: roomData.game.minPlayers,
             },
-            maxPlayer: roomData.game.maxPlayers,
         };
         room = newRoom;
-        if (!rooms[roomData.game]) rooms[roomData.game] = [] as Room[];
-        rooms[roomData.game].push(room);
+        if (!rooms[roomData.game.name])
+            rooms[roomData.game.name] = [] as Room[];
+        rooms[roomData.game.name].push(room);
         sendRoom();
         sendRooms();
         console.log("방 생성", newRoom);
@@ -177,18 +177,18 @@ io.on("connection", (socket) => {
 
     socket.on("turnEnd", (data) => {
         if (
-            data.room.boardData[data.y][data.x].value ||
+            data.room.gameData[data.y][data.x].value ||
             data.room.currentTurn !== data.player.name
         )
             return;
 
-        data.room.boardData[data.y][data.x].value = true;
-        data.room.boardData[data.y][data.x].player =
+        data.room.gameData[data.y][data.x].value = true;
+        data.room.gameData[data.y][data.x].player =
             data.room.master === data.player.name ? "O" : "X";
         data.room.winner = checkGameOver(
-            data.room.boardData[data.y][data.x].player,
+            data.room.gameData[data.y][data.x].player,
             data.player,
-            data.room.boardData
+            data.room.gameData
         );
         data.room.currentTurn =
             data.room.currentTurn ===
@@ -200,8 +200,8 @@ io.on("connection", (socket) => {
         sendRoom();
     });
 
-    socket.on("resetRoom", (boardData: IGameCell[][]) => {
-        room.boardData = boardData;
+    socket.on("resetRoom", (gameData: IGameCell[][]) => {
+        room.gameData = gameData;
         room.winner = "";
         room.currentTurn = room.master;
         sendRoom();
@@ -227,6 +227,11 @@ io.on("connection", (socket) => {
         players.splice(playerIndex);
         sendPlayers();
         exitRoom();
+    });
+
+    // 수수께기
+    socket.on("registerAnswer", (answer) => {
+        room.gameData as GuessingData;
     });
 });
 

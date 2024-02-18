@@ -19,7 +19,7 @@ import {
     TableCell,
 } from "@nextui-org/react";
 import { selectPlayer } from "@/app/redux/playerSlice";
-import { Game } from "@/interface/interface";
+import { Game, GuessingData } from "@/types";
 
 const game: Game = {
     name: "guessing",
@@ -48,13 +48,67 @@ const gameData = [
 
 export default () => {
     const room = useAppSelector(selectRoom);
-    const player = useAppSelector(selectPlayer);
-    const { register, handleSubmit, watch, setValue } = useForm();
 
     return (
         <>
             <GameSection>
                 <section className="grow mr-12">
+                    <CreateQuestion />
+
+                    {room.isStart ? (
+                        <div>
+                            <GuessingBoard
+                                gameData={room.gameData as GuessingData}
+                            />
+                        </div>
+                    ) : null}
+                </section>
+            </GameSection>
+            <StatusSection title="스무고개">
+                {room.id ? <Room /> : <RoomList game={game} />}
+            </StatusSection>
+        </>
+    );
+};
+
+const CreateQuestion = () => {
+    const { register, handleSubmit, watch, setValue } = useForm();
+
+    const registerAnswer = () => {};
+
+    return (
+        <form className="flex items-end">
+            <Input
+                className="mb-2 sm:mb-0"
+                color="primary"
+                label="문제를 출제해주세요."
+                variant="underlined"
+                size="sm"
+                {...register("answer")}
+            />
+            <Button
+                className="w-full sm:w-20"
+                size="sm"
+                type="submit"
+                isDisabled={!Boolean(watch("answer"))}
+                color={!Boolean(watch("answer")) ? "default" : "primary"}
+            >
+                제출
+            </Button>
+        </form>
+    );
+};
+
+const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
+    const room = useAppSelector(selectRoom);
+    const player = useAppSelector(selectPlayer);
+    const isMaster = room.master === player.name;
+    const { register, handleSubmit, watch, setValue } = useForm();
+
+    return (
+        <div>
+            {gameData.answer ? (
+                <div>
                     <h2 className="mb-2 text-xl">진행 상황</h2>
                     <Table className="mb-8">
                         <TableHeader>
@@ -63,7 +117,7 @@ export default () => {
                             <TableColumn>답변</TableColumn>
                         </TableHeader>
                         <TableBody>
-                            {gameData.map((item, index) => {
+                            {gameData.history.map((item, index) => {
                                 return (
                                     <TableRow key={index}>
                                         <TableCell>{index}</TableCell>
@@ -74,7 +128,6 @@ export default () => {
                             })}
                         </TableBody>
                     </Table>
-
                     <form className="flex items-end">
                         <Input
                             className="mb-2 sm:mb-0"
@@ -98,16 +151,16 @@ export default () => {
                             제출
                         </Button>
                     </form>
-
                     <ButtonGroup>
                         <Button>예</Button>
                         <Button>아니오</Button>
                     </ButtonGroup>
-                </section>
-            </GameSection>
-            <StatusSection title="스무고개">
-                {room.id ? <Room /> : <RoomList game={game} />}
-            </StatusSection>
-        </>
+                </div>
+            ) : isMaster ? (
+                <CreateQuestion />
+            ) : (
+                "방장이 문제를 출제 중입니다."
+            )}
+        </div>
     );
 };

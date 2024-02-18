@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Game, Room } from "@/interface/interface";
+import { Game, Room } from "@/types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -30,18 +30,20 @@ export const RoomList = ({ game }: RoomListProps) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { register, handleSubmit, watch } = useForm();
 
+    console.log(game);
+
     const createRoom = () => {
         onClose();
         socket.emit("createRoom", {
             name: watch("roomName"),
             player: player,
-            boardData: createGridBoard(3, 3),
+            gameData: createGridBoard(3, 3),
             currentTurn: player.name,
             winner: "",
             game: {
                 name: game.name,
-                maxPlayer: game.maxPlayers,
-                minPlayer: game.minPlayers,
+                maxPlayers: game.maxPlayers,
+                minPlayers: game.minPlayers,
             },
         });
     };

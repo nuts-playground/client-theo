@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-import { Rooms } from "@/interface/interface";
+import { Rooms } from "@/types";
 
 const initialState = {
     rooms: {} as Rooms,
