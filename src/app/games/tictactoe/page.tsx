@@ -52,7 +52,14 @@ export default () => {
             </GameSection>
             <StatusSection title="틱택토">
                 <>
-                    {room.id ? <Room /> : <RoomList game={game} />}
+                    {room.id ? (
+                        <Room />
+                    ) : (
+                        <RoomList
+                            game={game}
+                            initGameData={createGridBoard(3, 3)}
+                        />
+                    )}
 
                     <Modal isOpen={Boolean(room.winner)} size="sm">
                         <ModalContent>

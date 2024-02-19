@@ -6,7 +6,7 @@ import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
 import { useForm } from "react-hook-form";
-
+import { selectSocket } from "@/app/redux/socketSlice";
 import {
     Input,
     ButtonGroup,
@@ -20,6 +20,7 @@ import {
 } from "@nextui-org/react";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { Game, GuessingData } from "@/types";
+import { useState } from "react";
 
 const game: Game = {
     name: "guessing",
@@ -53,8 +54,7 @@ export default () => {
         <>
             <GameSection>
                 <section className="grow mr-12">
-                    <CreateQuestion />
-
+                    <SubmitAnswerOrQuestion />
                     {room.isStart ? (
                         <div>
                             <GuessingBoard
@@ -65,37 +65,113 @@ export default () => {
                 </section>
             </GameSection>
             <StatusSection title="스무고개">
-                {room.id ? <Room /> : <RoomList game={game} />}
+                {room.id ? (
+                    <Room />
+                ) : (
+                    <RoomList
+                        game={game}
+                        initGameData={
+                            {
+                                answer: "",
+                                history: [] as unknown,
+                            } as GuessingData
+                        }
+                    />
+                )}
             </StatusSection>
         </>
     );
 };
 
-const CreateQuestion = () => {
-    const { register, handleSubmit, watch, setValue } = useForm();
+const SubmitAnswerOrQuestion = () => {
+    type Actions = "answer" | "question" | "";
+    const [action, setAction] = useState<Actions>("");
+    const socket = useAppSelector(selectSocket);
 
-    const registerAnswer = () => {};
+    const submitAnswer = (input: string) => {
+        socket.emit("submitAnswer", input);
+    };
+    const submitQuestion = (input: string) => {
+        socket.emit("submitQuestion", input);
+    };
 
     return (
-        <form className="flex items-end">
+        <div>
+            {action ? null : (
+                <ButtonGroup>
+                    <Button onClick={() => setAction("question")}>질문</Button>
+                    <Button onClick={() => setAction("answer")} color="primary">
+                        정답
+                    </Button>
+                </ButtonGroup>
+            )}
+
+            {action === "answer" ? (
+                <SubmitForm
+                    onSubmit={submitAnswer}
+                    labelText="정답을 작성해주세요."
+                    buttonText="제출"
+                />
+            ) : null}
+            {action === "question" ? (
+                <SubmitForm
+                    onSubmit={submitQuestion}
+                    labelText="질문을 작성해주세요."
+                    buttonText="제출"
+                />
+            ) : null}
+        </div>
+    );
+};
+
+interface TypeSubmitForm {
+    onSubmit: (input: string) => void;
+    labelText: string;
+    buttonText: string;
+}
+const SubmitForm = ({ onSubmit, labelText, buttonText }: TypeSubmitForm) => {
+    const { register, handleSubmit, watch } = useForm();
+
+    const submit = () => {
+        onSubmit(watch("input"));
+    };
+
+    return (
+        <form className="flex items-end" onSubmit={handleSubmit(submit)}>
             <Input
                 className="mb-2 sm:mb-0"
                 color="primary"
-                label="문제를 출제해주세요."
+                label={labelText}
                 variant="underlined"
                 size="sm"
-                {...register("answer")}
+                {...register("input")}
             />
             <Button
                 className="w-full sm:w-20"
                 size="sm"
                 type="submit"
-                isDisabled={!Boolean(watch("answer"))}
-                color={!Boolean(watch("answer")) ? "default" : "primary"}
+                isDisabled={!Boolean(watch("input"))}
+                color={!Boolean(watch("input")) ? "default" : "primary"}
             >
-                제출
+                {buttonText}
             </Button>
         </form>
+    );
+};
+
+const CreateQuestion = () => {
+    const socket = useAppSelector(selectSocket);
+
+    const registerAnswer = (input: string) => {
+        socket.emit("registerAnswer", input);
+    };
+
+    return (
+        <SubmitForm
+            onSubmit={registerAnswer}
+            labelText="문제를 출제해주세요."
+            buttonText="제출"
+        />
     );
 };
 
@@ -105,11 +181,21 @@ const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
     const isMaster = room.master === player.name;
     const { register, handleSubmit, watch, setValue } = useForm();
 
+    console.log(room);
+
     return (
         <div>
             {gameData.answer ? (
                 <div>
-                    <h2 className="mb-2 text-xl">진행 상황</h2>
+                    <h2 className="flex items-end mb-2 text-xl">
+                        <span className="mr-auto">진행 상황</span>
+                        {isMaster ? (
+                            <span className="text-base">
+                                정답: {gameData.answer}
+                            </span>
+                        ) : null}
+                    </h2>
+
                     <Table className="mb-8">
                         <TableHeader>
                             <TableColumn>번호</TableColumn>
@@ -128,29 +214,12 @@ const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
                             })}
                         </TableBody>
                     </Table>
-                    <form className="flex items-end">
-                        <Input
-                            className="mb-2 sm:mb-0"
-                            color="primary"
-                            label="정답"
-                            variant="underlined"
-                            size="sm"
-                            {...register("answer")}
-                        />
-                        <Button
-                            className="w-full sm:w-20"
-                            size="sm"
-                            type="submit"
-                            isDisabled={!Boolean(watch("answer"))}
-                            color={
-                                !Boolean(watch("answer"))
-                                    ? "default"
-                                    : "primary"
-                            }
-                        >
-                            제출
-                        </Button>
-                    </form>
+                    {!isMaster ? (
+                        <SubmitAnswerOrQuestion />
+                    ) : (
+                        "상대방이 입력중입니다."
+                    )}
+
                     <ButtonGroup>
                         <Button>예</Button>
                         <Button>아니오</Button>

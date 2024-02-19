@@ -1,6 +1,14 @@
 import http from "http";
 import { Server } from "socket.io";
-import { Player, Players, Room, Rooms, IGameCell, GuessingData } from "@/types";
+import {
+    Player,
+    Players,
+    Room,
+    Rooms,
+    IGameCell,
+    GuessingData,
+    TictactoeRoom,
+} from "@/types";
 
 const httpServer = http.createServer();
 
@@ -231,7 +239,14 @@ io.on("connection", (socket) => {
 
     // 수수께기
     socket.on("registerAnswer", (answer) => {
-        room.gameData as GuessingData;
+        const gameData = room.gameData as GuessingData;
+        gameData.answer = answer;
+        room.gameData = gameData;
+        sendRoom();
+    });
+
+    socket.on("submitAnswer", (answer) => {
+        const gameData = room.gameData as GuessingData;
     });
 });
 

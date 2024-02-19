@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Game, Room } from "@/types";
+import { Game, GameData, Room } from "@/types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -16,14 +16,14 @@ import {
     useDisclosure,
 } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
-import { createGridBoard } from "./gameBoard";
 import { Join } from "./join";
 
 interface RoomListProps {
     game: Game;
+    initGameData: GameData;
 }
 
-export const RoomList = ({ game }: RoomListProps) => {
+export const RoomList = ({ game, initGameData }: RoomListProps) => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
@@ -37,7 +37,7 @@ export const RoomList = ({ game }: RoomListProps) => {
         socket.emit("createRoom", {
             name: watch("roomName"),
             player: player,
-            gameData: createGridBoard(3, 3),
+            gameData: initGameData,
             currentTurn: player.name,
             winner: "",
             game: {
