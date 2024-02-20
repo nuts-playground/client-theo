@@ -49,12 +49,13 @@ const gameData = [
 
 export default () => {
     const room = useAppSelector(selectRoom);
+    console.log(room, "테오");
 
     return (
         <>
             <GameSection>
                 <section className="grow mr-12">
-                    <SubmitAnswerOrQuestion />
+                    {/* <SubmitReply /> */}
                     {room.isStart ? (
                         <div>
                             <GuessingBoard
@@ -74,6 +75,7 @@ export default () => {
                             {
                                 answer: "",
                                 history: [] as unknown,
+                                state: "init",
                             } as GuessingData
                         }
                     />
@@ -84,8 +86,8 @@ export default () => {
 };
 
 const SubmitAnswerOrQuestion = () => {
-    type Actions = "answer" | "question" | "";
-    const [action, setAction] = useState<Actions>("");
+    type Actions = "answer" | "question";
+    const [action, setAction] = useState<Actions>("question");
     const socket = useAppSelector(selectSocket);
 
     const submitAnswer = (input: string) => {
@@ -96,15 +98,23 @@ const SubmitAnswerOrQuestion = () => {
     };
 
     return (
-        <div>
-            {action ? null : (
-                <ButtonGroup>
-                    <Button onClick={() => setAction("question")}>질문</Button>
-                    <Button onClick={() => setAction("answer")} color="primary">
-                        정답
-                    </Button>
-                </ButtonGroup>
-            )}
+        <div className="flex flex-col justify-center">
+            <ButtonGroup className="mb-4">
+                <Button
+                    onClick={() => setAction("question")}
+                    size="sm"
+                    color={action === "question" ? "primary" : "default"}
+                >
+                    질문
+                </Button>
+                <Button
+                    onClick={() => setAction("answer")}
+                    size="sm"
+                    color={action === "answer" ? "primary" : "default"}
+                >
+                    정답
+                </Button>
+            </ButtonGroup>
 
             {action === "answer" ? (
                 <SubmitForm
@@ -112,15 +122,33 @@ const SubmitAnswerOrQuestion = () => {
                     labelText="정답을 작성해주세요."
                     buttonText="제출"
                 />
-            ) : null}
-            {action === "question" ? (
+            ) : (
                 <SubmitForm
                     onSubmit={submitQuestion}
                     labelText="질문을 작성해주세요."
                     buttonText="제출"
                 />
-            ) : null}
+            )}
         </div>
+    );
+};
+
+const SubmitReply = () => {
+    const socket = useAppSelector(selectSocket);
+
+    const submitReply = (reply: boolean) => {
+        socket.emit("submitReply", reply);
+    };
+
+    return (
+        <ButtonGroup>
+            <Button onClick={() => submitReply(true)} size="sm">
+                예
+            </Button>
+            <Button onClick={() => submitReply(false)} size="sm">
+                아니오
+            </Button>
+        </ButtonGroup>
     );
 };
 
@@ -181,11 +209,17 @@ const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
     const isMaster = room.master === player.name;
     const { register, handleSubmit, watch, setValue } = useForm();
 
-    console.log(room);
-
     return (
         <div>
-            {gameData.answer ? (
+            {gameData.state === "init" ? (
+                <div>
+                    {isMaster ? (
+                        <CreateQuestion />
+                    ) : (
+                        "방장이 문제를 출제 중입니다."
+                    )}
+                </div>
+            ) : (
                 <div>
                     <h2 className="flex items-end mb-2 text-xl">
                         <span className="mr-auto">진행 상황</span>
@@ -208,27 +242,38 @@ const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
                                     <TableRow key={index}>
                                         <TableCell>{index}</TableCell>
                                         <TableCell>{item.question}</TableCell>
-                                        <TableCell>{item.answer}</TableCell>
+                                        <TableCell>
+                                            {item.answer !== null
+                                                ? item.answer
+                                                    ? "예"
+                                                    : "아니오"
+                                                : null}
+                                        </TableCell>
                                     </TableRow>
                                 );
                             })}
                         </TableBody>
                     </Table>
-                    {!isMaster ? (
-                        <SubmitAnswerOrQuestion />
-                    ) : (
-                        "상대방이 입력중입니다."
-                    )}
+                    {gameData.state === "question" ? (
+                        <div>
+                            {isMaster ? (
+                                "상대방이 질문 혹은 정답을 입력하고 있습니다."
+                            ) : (
+                                <SubmitAnswerOrQuestion />
+                            )}
+                        </div>
+                    ) : null}
 
-                    <ButtonGroup>
-                        <Button>예</Button>
-                        <Button>아니오</Button>
-                    </ButtonGroup>
+                    {gameData.state === "answer" ? (
+                        <div>
+                            {isMaster ? (
+                                <SubmitReply />
+                            ) : (
+                                "상대방이 답변을 선택하고 있습니다."
+                            )}
+                        </div>
+                    ) : null}
                 </div>
-            ) : isMaster ? (
-                <CreateQuestion />
-            ) : (
-                "방장이 문제를 출제 중입니다."
             )}
         </div>
     );

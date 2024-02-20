@@ -13,6 +13,7 @@ import { setPlayers } from "./redux/playersSlice";
 import { setRooms } from "./redux/roomsSlice";
 import { setRoom } from "./redux/roomSlice";
 import { Header } from "@/components/layout/header";
+import { Room } from "@/types";
 import "./globals.css";
 
 const orbit = Orbit({
@@ -36,8 +37,9 @@ const App = ({ children }: { children: React.ReactNode }) => {
             dispatch(setPlayers({ players: players }));
         });
         socket.emit("getPlayers");
-        socket.on("sendRoom", (room) => {
+        socket.on("sendRoom", (room: Room) => {
             dispatch(setRoom(room));
+            socket.emit("updateRoom", room);
         });
         socket.on("sendRooms", (rooms) => {
             dispatch(setRooms({ rooms: rooms }));

@@ -219,7 +219,12 @@ io.on("connection", (socket) => {
 
     socket.on("sendRoom", (roomData) => {
         room = roomData;
+        console.log(room, "sendRoom");
         sendRoom();
+    });
+
+    socket.on("updateRoom", (roomData) => {
+        room = roomData;
     });
 
     socket.on("getRooms", () => sendRooms());
@@ -241,12 +246,27 @@ io.on("connection", (socket) => {
     socket.on("registerAnswer", (answer) => {
         const gameData = room.gameData as GuessingData;
         gameData.answer = answer;
+        gameData.state = "question";
         room.gameData = gameData;
         sendRoom();
     });
 
-    socket.on("submitAnswer", (answer) => {
-        const gameData = room.gameData as GuessingData;
+    socket.on("submitReply", (reply: boolean) => {
+        const newGameData = room.gameData as GuessingData;
+        newGameData.history[newGameData.history.length - 1].answer = reply;
+        newGameData.state =
+            newGameData.history.length > 19 ? "over" : "question";
+        room.gameData = newGameData;
+
+        sendRoom();
+    });
+    socket.on("submitQuestion", (question) => {
+        const newGameData = room.gameData as GuessingData;
+        newGameData.history.push({ question: question, answer: null });
+        newGameData.state = "answer";
+        room.gameData = newGameData;
+
+        sendRoom();
     });
 });
 

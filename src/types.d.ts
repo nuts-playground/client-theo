@@ -45,9 +45,10 @@ export interface GuessingData {
     history: [
         {
             question: string;
-            answer: boolean;
+            answer: boolean | null;
         }
     ];
+    state: "question" | "answer" | "init" | "over";
 }
 
 export interface GuessingRoom extends Room {
