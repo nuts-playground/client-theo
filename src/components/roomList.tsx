@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Game, GameData, Room } from "@/types";
+import { Game, GameData, Players, Room } from "@/types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -30,22 +30,28 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { register, handleSubmit, watch } = useForm();
 
-    console.log(game);
-
     const createRoom = () => {
-        onClose();
-        socket.emit("createRoom", {
+        const players: Players = {};
+        players[player.id] = player;
+
+        const room: Room = {
+            id: 0,
             name: watch("roomName"),
-            player: player,
-            gameData: initGameData,
-            currentTurn: player.name,
-            winner: "",
             game: {
                 name: game.name,
                 maxPlayers: game.maxPlayers,
                 minPlayers: game.minPlayers,
             },
-        });
+            players: players,
+            isStart: false,
+            gameData: initGameData,
+            currentTurn: player.name,
+            winner: "",
+            master: player.name,
+        };
+
+        onClose();
+        socket.emit("createRoom", room);
     };
 
     const joinRoom = (roomId: number) => {

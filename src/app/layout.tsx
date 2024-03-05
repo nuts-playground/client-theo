@@ -25,7 +25,8 @@ const App = ({ children }: { children: React.ReactNode }) => {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        const socket = io("https://api.mynameishomin.com");
+        // const socket = io("https://api.mynameishomin.com");
+        const socket = io("http://localhost:3001");
         socket.on("joinPlayground", (player) => {
             if (player) {
                 dispatch(setPlayer(player));
