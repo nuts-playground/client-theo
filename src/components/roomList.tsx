@@ -27,6 +27,7 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
+    console.log(rooms, "tq");
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { register, handleSubmit, watch } = useForm();
 
@@ -64,37 +65,41 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
 
     return (
         <>
-            <Listbox
-                className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
-                aria-label="Actions"
-                emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
-            >
-                {rooms[game.name]?.map((room: Room, index: number) => {
-                    const isFull = Object.keys(room.players).length === 2;
-                    return (
-                        <ListboxItem
-                            key={index}
-                            startContent={
-                                isFull ? (
-                                    <FontAwesomeIcon icon={faDoorClosed} />
-                                ) : (
-                                    <FontAwesomeIcon icon={faDoorOpen} />
-                                )
-                            }
-                            description={`참가자: ${Object.keys(room.players)
-                                .map((id: string) => room.players[id].name)
-                                .join(", ")}`}
-                            onClick={() => {
-                                if (player.id) {
-                                    joinRoom(room.id);
-                                }
-                            }}
-                        >
-                            {room.name}
-                        </ListboxItem>
-                    );
-                })}
-            </Listbox>
+            {rooms.length > 0 ? (
+                <Listbox
+                    className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
+                    aria-label="Actions"
+                    emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
+                >
+                    {rooms?.map((room: Room, index: number) => {
+                        // const isFull = Object.keys(room.players).length === 2;
+                        return (
+                            <ListboxItem
+                                key={index}
+                                // startContent={
+                                //     isFull ? (
+                                //         <FontAwesomeIcon icon={faDoorClosed} />
+                                //     ) : (
+                                //         <FontAwesomeIcon icon={faDoorOpen} />
+                                //     )
+                                // }
+                                // description={`참가자: ${Object.keys(
+                                //     room.players
+                                // )
+                                //     .map((id: string) => room.players[id].name)
+                                //     .join(", ")}`}
+                                // onClick={() => {
+                                //     if (player.id) {
+                                //         joinRoom(room.id);
+                                //     }
+                                // }}
+                            >
+                                {room.name}
+                            </ListboxItem>
+                        );
+                    })}
+                </Listbox>
+            ) : null}
 
             {player.id ? (
                 <Button

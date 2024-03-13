@@ -17,9 +17,10 @@ import { selectRoom } from "@/app/redux/roomSlice";
 import { RoomList } from "@/components/roomList";
 import { Room } from "@/components/room";
 import { Game, IGameCell } from "@/types";
+import { useEffect } from "react";
 
 const game: Game = {
-    name: "tictactoe",
+    name: "틱택토",
     maxPlayers: 2,
     minPlayers: 2,
 };
@@ -40,6 +41,10 @@ export default () => {
     const exitRoom = () => {
         socket.emit("exitRoom");
     };
+    useEffect(() => {
+        socket.emit("updateLocation", "틱택토");
+        socket.emit("getRooms", "틱택토");
+    }, []);
 
     return (
         <>

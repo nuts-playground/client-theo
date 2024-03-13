@@ -37,13 +37,12 @@ const App = ({ children }: { children: React.ReactNode }) => {
         socket.on("sendPlayers", (players) => {
             dispatch(setPlayers({ players: players }));
         });
-        socket.emit("getPlayers");
         socket.on("sendRoom", (room: Room) => {
             dispatch(setRoom(room));
-            socket.emit("updateRoom", room);
         });
         socket.on("sendRooms", (rooms) => {
-            dispatch(setRooms({ rooms: rooms }));
+            console.log(rooms);
+            dispatch(setRooms({ rooms }));
         });
         dispatch(
             setSocket({
