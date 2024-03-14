@@ -113,7 +113,7 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
                     방 생성
                 </Button>
             ) : (
-                <Join />
+                <Join location={game.name} />
             )}
 
             <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="sm">

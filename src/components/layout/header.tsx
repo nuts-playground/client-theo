@@ -16,7 +16,6 @@ import {
 import Link from "next/link";
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
-import { Join } from "@/components/join";
 import { useState } from "react";
 
 export const site = {
@@ -45,9 +44,9 @@ const JoinModalButton = () => {
                     <ModalHeader className="flex flex-col gap-1">
                         {site.title}
                     </ModalHeader>
-                    <ModalBody className="pb-4">
+                    {/* <ModalBody className="pb-4">
                         <Join />
-                    </ModalBody>
+                    </ModalBody> */}
                 </ModalContent>
             </Modal>
         </div>

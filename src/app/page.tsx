@@ -3,8 +3,6 @@ import { PlayerList } from "@/components/playerList";
 import { Join } from "@/components/join";
 import { useAppSelector } from "./redux/hook";
 import { selectPlayer } from "./redux/playerSlice";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { site } from "@/components/layout/header";
 
@@ -30,7 +28,7 @@ export default function Home() {
                 </div>
             </div>
             <div className="mb-20 space-y-20 sm:flex sm:items-start sm:space-y-0 sm:space-x-12 lg:flex-col lg:w-1/3 lg:space-x-0 lg:space-y-8">
-                {player.id ? null : <Join />}
+                {player.id ? null : <Join location="메인페이지" />}
                 <section className="w-full sm:grow">
                     <h2 className="mb-2">접속중인 플레이어</h2>
                     <PlayerList />

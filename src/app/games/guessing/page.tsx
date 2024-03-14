@@ -20,10 +20,10 @@ import {
 } from "@nextui-org/react";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { Game, GuessingData } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const game: Game = {
-    name: "guessing",
+    name: "스무고개",
     maxPlayers: 4,
     minPlayers: 2,
 };
@@ -49,7 +49,14 @@ const gameData = [
 
 export default () => {
     const room = useAppSelector(selectRoom);
-    console.log(room, "테오");
+
+    const socket = useAppSelector(selectSocket);
+
+    useEffect(() => {
+        if (Object.keys(socket).length) {
+            socket.emit("updateLocation", "스무고개");
+        }
+    }, []);
 
     return (
         <>
@@ -208,7 +215,6 @@ const GuessingBoard = ({ gameData }: { gameData: GuessingData }) => {
     const player = useAppSelector(selectPlayer);
     const isMaster = room.master === player.name;
     const { register, handleSubmit, watch, setValue } = useForm();
-
     return (
         <div>
             {gameData.state === "init" ? (

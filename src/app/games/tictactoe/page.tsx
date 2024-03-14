@@ -10,7 +10,7 @@ import {
 import GameSection from "@/components/gameSection";
 import StatusSection from "@/components/statusSection";
 import { GameBoard, createGridBoard } from "@/components/gameBoard";
-import { useAppSelector } from "../../redux/hook";
+import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
@@ -41,9 +41,12 @@ export default () => {
     const exitRoom = () => {
         socket.emit("exitRoom");
     };
+
     useEffect(() => {
-        socket.emit("updateLocation", "틱택토");
-        socket.emit("getRooms", "틱택토");
+        if (Object.keys(socket).length) {
+            socket.emit("updateLocation", "틱택토");
+            socket.emit("getRooms", "틱택토");
+        }
     }, []);
 
     return (

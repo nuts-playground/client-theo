@@ -3,15 +3,15 @@ import { selectSocket } from "@/app/redux/socketSlice";
 import { Input, Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
 
-export const Join = () => {
+export const Join = ({ location }: { location: string }) => {
     const socket = useAppSelector(selectSocket);
     const { register, handleSubmit, watch, setValue } = useForm();
 
     const onJoin = () => {
-        if (watch("name")) {
-            socket.emit("joinPlayground", watch("name"));
-            setValue("name", "");
-        }
+        const name = watch("name");
+        if (!name) return false;
+        socket.emit("joinPlayground", { name, location });
+        setValue("name", "");
     };
 
     return (
