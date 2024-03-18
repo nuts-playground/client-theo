@@ -55,6 +55,7 @@ export default () => {
     useEffect(() => {
         if (Object.keys(socket).length) {
             socket.emit("updateLocation", "스무고개");
+            socket.emit("getRooms", "스무고개");
         }
     }, []);
 

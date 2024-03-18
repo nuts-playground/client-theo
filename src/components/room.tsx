@@ -2,7 +2,21 @@ import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectPlayer, setPlayer } from "@/app/redux/playerSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
-import { User, Divider, Button } from "@nextui-org/react";
+import {
+    Button,
+    useDisclosure,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Card,
+    CardFooter,
+    Chip,
+} from "@nextui-org/react";
+import { useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserLarge } from "@fortawesome/free-solid-svg-icons";
 
 export const Room = () => {
     const socket = useAppSelector(selectSocket);
@@ -10,92 +24,88 @@ export const Room = () => {
     const room = useAppSelector(selectRoom);
     const dispatch = useAppDispatch();
 
-    const isMaster = player.name === room.master;
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const playersId = Object.keys(room.players);
-    const readyPlayersLength = playersId.filter((key) => {
-        return room.players[key].isReady;
-    }).length;
-
-    const isReady =
-        playersId.length === readyPlayersLength &&
-        readyPlayersLength >= room.game.minPlayers;
-
-    const exitRoom = () => {
-        socket.emit("exitRoom");
+    const exitRoom = (id: number) => {
+        socket.emit("exitRoom", id);
+        onClose();
     };
 
-    const readyToggle = () => {
-        socket.emit("ready", !player.isReady);
-        dispatch(setPlayer({ isReady: !player.isReady }));
+    const toggleReady = (id: number) => {
+        socket.emit("toggleReady", id);
     };
 
-    const gameStart = () => {
-        const newRoom = { ...room, isStart: true };
-        socket.emit("sendRoom", newRoom);
-    };
+    useEffect(() => {
+        onOpen();
+    }, []);
 
     return (
-        <>
-            <div className="flex items-center justify-center space-x-4 relative p-2 mb-2 bg-content1 w-[350px] max-w-full overflow-visible shadow-small rounded-medium">
-                {Object.keys(room.players).map((id, index) => {
-                    return (
-                        <div
-                            className="flex items-center space-x-4"
-                            key={index}
-                        >
-                            <User
-                                className="text-nowrap"
-                                name={room.players[id].name}
-                                description={
-                                    room.players[id].isReady ? "Ready!" : null
-                                }
-                            />
-                            {index !== Object.keys(room.players).length - 1 ? (
-                                <Divider
-                                    className="h-4"
-                                    orientation="vertical"
-                                />
-                            ) : null}
-                        </div>
-                    );
-                })}
-            </div>
-            {!room.isStart ? (
-                <div className="flex space-x-2">
-                    <Button
-                        className="w-full"
-                        type="button"
-                        color="default"
-                        size="lg"
-                        onPress={exitRoom}
-                    >
-                        방 나가기
-                    </Button>
-
-                    <Button
-                        className="w-full"
-                        type="button"
-                        color={
-                            player.isReady
-                                ? isMaster && isReady
-                                    ? "primary"
-                                    : "success"
-                                : "primary"
-                        }
-                        size="lg"
-                        onPress={() => {
-                            isMaster && isReady ? gameStart() : readyToggle();
-                        }}
-                    >
-                        {player.isReady
-                            ? isMaster && isReady
-                                ? "시작"
-                                : "준비 해제"
-                            : "준비"}
-                    </Button>
-                </div>
-            ) : null}
-        </>
+        <Modal size="full" isOpen={isOpen} onClose={onClose}>
+            <ModalContent>
+                {(onClose) => (
+                    <>
+                        <ModalHeader className="flex flex-col gap-1">
+                            {room.name}
+                        </ModalHeader>
+                        <ModalBody>
+                            <div className="flex p-2 border-2 space-x-2 border-purple-900 rounded-2xl">
+                                {room.players.map((player) => {
+                                    return (
+                                        <Card
+                                            isFooterBlurred
+                                            radius="lg"
+                                            className={`w-40 h-40 border-1 ${
+                                                player.ready
+                                                    ? "border-white"
+                                                    : "border-transparent"
+                                            }`}
+                                        >
+                                            <div className="w-full h-full p-10 bg-purple-900">
+                                                <FontAwesomeIcon
+                                                    className="w-full h-full"
+                                                    icon={faUserLarge}
+                                                />
+                                            </div>
+                                            <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
+                                                <p className="text-tiny text-white/80">
+                                                    {player.name}
+                                                </p>
+                                                <Chip
+                                                    size="sm"
+                                                    color={
+                                                        player.ready
+                                                            ? "primary"
+                                                            : "default"
+                                                    }
+                                                >
+                                                    {player.ready
+                                                        ? "준비완료"
+                                                        : "대기중"}
+                                                </Chip>
+                                            </CardFooter>
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button
+                                color="danger"
+                                variant="light"
+                                onPress={() => exitRoom(room.id)}
+                            >
+                                방 나가기
+                            </Button>
+                            <Button
+                                color="primary"
+                                onClick={() => toggleReady(room.id)}
+                            >
+                                준비
+                            </Button>
+                        </ModalFooter>
+                    </>
+                )}
+            </ModalContent>
+        </Modal>
     );
 };

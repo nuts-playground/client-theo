@@ -1,7 +1,7 @@
 import { useAppSelector } from "@/app/redux/hook";
 import { selectPlayer } from "@/app/redux/playerSlice";
 import { selectSocket } from "@/app/redux/socketSlice";
-import { Game, GameData, Players, Room } from "@/types";
+import { Game, GameData, Players, Player, Room } from "@/types";
 import { Listbox, ListboxItem } from "@nextui-org/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
@@ -27,7 +27,6 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
     const player = useAppSelector(selectPlayer);
     const socket = useAppSelector(selectSocket);
     const rooms = useAppSelector(selectRooms);
-    console.log(rooms, "tq");
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
     const { register, handleSubmit, watch } = useForm();
 
@@ -35,20 +34,11 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
         const players: Players = {};
         players[player.id] = player;
 
-        const room: Room = {
-            id: 0,
+        const room = {
             name: watch("roomName"),
             game: {
                 name: game.name,
-                maxPlayers: game.maxPlayers,
-                minPlayers: game.minPlayers,
             },
-            players: players,
-            isStart: false,
-            gameData: initGameData,
-            currentTurn: player.name,
-            winner: "",
-            master: player.name,
         };
 
         onClose();
@@ -56,11 +46,7 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
     };
 
     const joinRoom = (roomId: number) => {
-        socket.emit("joinRoom", {
-            id: roomId,
-            player: player,
-            game: game.name,
-        });
+        socket.emit("joinRoom", { id: roomId });
     };
 
     return (
@@ -72,27 +58,25 @@ export const RoomList = ({ game, initGameData }: RoomListProps) => {
                     emptyContent="현재는 방이 없습니다. 방을 만들어주세요."
                 >
                     {rooms?.map((room: Room, index: number) => {
-                        // const isFull = Object.keys(room.players).length === 2;
+                        const isFull = room.players.length === 2;
                         return (
                             <ListboxItem
                                 key={index}
-                                // startContent={
-                                //     isFull ? (
-                                //         <FontAwesomeIcon icon={faDoorClosed} />
-                                //     ) : (
-                                //         <FontAwesomeIcon icon={faDoorOpen} />
-                                //     )
-                                // }
-                                // description={`참가자: ${Object.keys(
-                                //     room.players
-                                // )
-                                //     .map((id: string) => room.players[id].name)
-                                //     .join(", ")}`}
-                                // onClick={() => {
-                                //     if (player.id) {
-                                //         joinRoom(room.id);
-                                //     }
-                                // }}
+                                startContent={
+                                    isFull ? (
+                                        <FontAwesomeIcon icon={faDoorClosed} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faDoorOpen} />
+                                    )
+                                }
+                                description={`참가자: ${room.players
+                                    .map((player: Player) => player.name)
+                                    .join(", ")}`}
+                                onClick={() => {
+                                    if (player.id) {
+                                        joinRoom(room.id);
+                                    }
+                                }}
                             >
                                 {room.name}
                             </ListboxItem>

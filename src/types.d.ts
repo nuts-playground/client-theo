@@ -28,7 +28,7 @@ export interface Room {
     id: number;
     name: string;
     game: Game;
-    players: Players;
+    players: Player[];
     isStart: boolean;
     gameData: GameData;
     currentTurn: string;

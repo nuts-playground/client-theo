@@ -30,6 +30,13 @@ const App = ({ children }: { children: React.ReactNode }) => {
         socket.on("joinPlayground", (player) => {
             if (player) {
                 dispatch(setPlayer(player));
+
+                if (
+                    player.location === "틱택토" ||
+                    player.location === "스무고개"
+                ) {
+                    socket.emit("getRoom", player.location);
+                }
             } else {
                 alert("이미 존재하는 이름입니다.");
             }
@@ -41,7 +48,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
             dispatch(setRoom(room));
         });
         socket.on("sendRooms", (rooms) => {
-            console.log(rooms);
+            console.log(rooms, "호민");
             dispatch(setRooms({ rooms }));
         });
         dispatch(
