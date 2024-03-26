@@ -2,21 +2,29 @@ import { useAppSelector } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { Input, Button } from "@nextui-org/react";
 import { useForm } from "react-hook-form";
+import { selectPlayer } from "@/app/redux/playerSlice";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
-export const Join = ({ location }: { location: string }) => {
+export const Join = () => {
     const socket = useAppSelector(selectSocket);
     const { register, handleSubmit, watch, setValue } = useForm();
 
     const onJoin = () => {
         const name = watch("name");
-        if (!name) return false;
-        socket.emit("joinPlayground", { name, location });
-        setValue("name", "");
+        if (name) {
+            socket.emit("joinPlayground", { name, location });
+            setValue("name", "");
+        }
     };
 
     return (
-        <form
-            className="w-full sm:flex sm:items-end"
+        <motion.form
+            key="modal"
+            layout
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onSubmit={handleSubmit(onJoin)}
         >
             <Input
@@ -25,18 +33,16 @@ export const Join = ({ location }: { location: string }) => {
                 label="이름"
                 placeholder="홍길동"
                 variant="underlined"
-                size="sm"
                 {...register("name")}
             />
             <Button
                 className="w-full sm:w-20"
-                size="sm"
                 type="submit"
                 isDisabled={!Boolean(watch("name"))}
                 color={!Boolean(watch("name")) ? "default" : "primary"}
             >
                 입장
             </Button>
-        </form>
+        </motion.form>
     );
 };

@@ -15,6 +15,7 @@ import { setRoom } from "./redux/roomSlice";
 import { Header } from "@/components/layout/header";
 import { Room } from "@/types";
 import "./globals.css";
+import { Footer } from "@/components/layout/footer";
 
 const orbit = Orbit({
     subsets: ["latin"],
@@ -48,7 +49,6 @@ const App = ({ children }: { children: React.ReactNode }) => {
             dispatch(setRoom(room));
         });
         socket.on("sendRooms", (rooms) => {
-            console.log(rooms, "호민");
             dispatch(setRooms({ rooms }));
         });
         dispatch(
@@ -57,7 +57,11 @@ const App = ({ children }: { children: React.ReactNode }) => {
             })
         );
     }, []);
-    return <div className="flex w-full grow justify-center">{children}</div>;
+    return (
+        <div className="flex flex-col w-full grow justify-center">
+            {children}
+        </div>
+    );
 };
 
 export default function RootLayout({
@@ -73,11 +77,12 @@ export default function RootLayout({
             <body className={orbit.className}>
                 <NextUIProvider>
                     <Provider store={store}>
-                        <div className="flex items-center flex-col bg-background">
+                        <div className="flex items-center flex-col bg-background h-screen">
                             <Header />
                             <main className="flex justify-between w-full h-full px-6 max-w-screen-xl">
                                 <App>{children}</App>
                             </main>
+                            <Footer />
                         </div>
                     </Provider>
                 </NextUIProvider>

@@ -1,4 +1,4 @@
-import { useAppSelector, useAppDispatch } from "@/app/redux/hook";
+import { useAppSelector } from "@/app/redux/hook";
 import { selectSocket } from "@/app/redux/socketSlice";
 import { selectPlayer, setPlayer } from "@/app/redux/playerSlice";
 import { selectRoom } from "@/app/redux/roomSlice";
@@ -14,7 +14,7 @@ import {
     CardFooter,
     Chip,
 } from "@nextui-org/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserLarge } from "@fortawesome/free-solid-svg-icons";
 
@@ -22,7 +22,9 @@ export const Room = () => {
     const socket = useAppSelector(selectSocket);
     const player = useAppSelector(selectPlayer);
     const room = useAppSelector(selectRoom);
-    const dispatch = useAppDispatch();
+    const master = room.players.filter((player) => player.isMaster)[0];
+
+    const [isReady, setIsReady] = useState<boolean>(false);
 
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -32,7 +34,12 @@ export const Room = () => {
     };
 
     const toggleReady = (id: number) => {
+        setIsReady((prev) => !prev);
         socket.emit("toggleReady", id);
+    };
+
+    const startGame = (id: number) => {
+        socket.emit("startGame", id);
     };
 
     useEffect(() => {
@@ -96,12 +103,37 @@ export const Room = () => {
                             >
                                 방 나가기
                             </Button>
-                            <Button
-                                color="primary"
-                                onClick={() => toggleReady(room.id)}
-                            >
-                                준비
-                            </Button>
+
+                            {master.name === player.name ? (
+                                <div>
+                                    {room.players.every(
+                                        (player) => player.ready
+                                    ) ? (
+                                        <Button
+                                            color="success"
+                                            onClick={() => toggleReady(room.id)}
+                                        >
+                                            시작
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            color={
+                                                isReady ? "success" : "primary"
+                                            }
+                                            onClick={() => toggleReady(room.id)}
+                                        >
+                                            {isReady ? "준비완료" : "준비"}
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                <Button
+                                    color={isReady ? "success" : "primary"}
+                                    onClick={() => toggleReady(room.id)}
+                                >
+                                    {isReady ? "준비완료" : "준비"}
+                                </Button>
+                            )}
                         </ModalFooter>
                     </>
                 )}
