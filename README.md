@@ -1,18 +1,40 @@
-# 테오 플레이그라운드
+# Next.js & NextUI Template
 
-Javascript로 구현 가능한 게임들을 만들어서 미니게임 모음집
+This is a template for creating applications using Next.js 13 (app directory) and NextUI (v2).
 
-## 진행 상황
+## Technologies Used
 
-![](./images/screen01.png)
-실시간 게임플레이 및 게임 결과 표시 및 재시작 기능 구현
+- [Next.js 13](https://nextjs.org/docs/getting-started)
+- [NextUI v2](https://nextui.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Tailwind Variants](https://tailwind-variants.org)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [next-themes](https://github.com/pacocoursey/next-themes)
 
-**우선 작업 필요 내용**  
-현재 소스코드가 틱택토가 아닌 다른 게임에도 재사용될 수 있도록 리팩토링
+## How to Use
 
-## TODO
 
--   공통 레이아웃 작업
--   가장 쉬운 틱택토 먼저 작업
-    -   승패 여부 확인 함수 리팩토링
-    -   키보드 조작 지원
+### Use the template with create-next-app
+
+To create a new project based on this template using `create-next-app`, run the following command:
+
+```bash
+npx create-next-app -e https://github.com/nextui-org/next-app-template
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run the development server
+
+```bash
+npm run dev
+```
+
+## License
+
+Licensed under the [MIT license](https://github.com/nextui-org/next-app-template/blob/main/LICENSE).
