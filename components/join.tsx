@@ -1,18 +1,24 @@
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { useForm } from "react-hook-form";
-import { motion } from "framer-motion";
-import { useState } from "react";
+// import { motion } from "framer-motion";
+import { useState, useContext } from "react";
+import { SocketContext } from "@/context/socket";
+import { PlayersContext } from "@/context/players";
 
 export const Join = () => {
     const { register, handleSubmit, watch, setValue } = useForm();
+    const socket = useContext(SocketContext);
+    const players = useContext(PlayersContext);
+
+    console.log(players);
 
     const onJoin = () => {
         const name = watch("name");
-        // if (name) {
-        //     socket.emit("joinPlayground", { name, location });
-        //     setValue("name", "");
-        // }
+        if (name) {
+            socket?.emit("joinPlayground", { name, location });
+            setValue("name", "");
+        }
     };
 
     return (

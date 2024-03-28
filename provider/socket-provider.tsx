@@ -1,13 +1,11 @@
 import { SocketContext, socket } from "@/context/socket";
-
-interface ProviderProps {
-    children: React.ReactNode;
-}
+import { ProviderProps } from "@/types";
+import { PlayersProvider } from "@/provider/players-provider";
 
 export const SocketProvider = ({ children }: ProviderProps) => {
     return (
         <SocketContext.Provider value={socket}>
-            {children}
+            <PlayersProvider>{children}</PlayersProvider>
         </SocketContext.Provider>
     );
 };
