@@ -13,3 +13,10 @@ export interface Player {
     name: string;
     location: string;
 }
+
+export interface ChatType {
+    id: string;
+    player: string;
+    text: string;
+    date: string;
+}

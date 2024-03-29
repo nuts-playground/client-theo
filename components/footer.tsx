@@ -1,13 +1,15 @@
 "use client";
-import { AnimatePresence, motion } from "framer-motion";
 import { Join } from "./join";
+import { useContext } from "react";
+import { PlayerContext } from "@/context/player";
+import { Chat } from "@/components/chat";
 
 export const Footer = () => {
+    const player = useContext(PlayerContext);
     return (
-        <AnimatePresence>
-            <motion.div className="sticky bottom-0 w-full p-6 pt-4 backdrop-blur z-10">
-                <Join />
-            </motion.div>
-        </AnimatePresence>
+        <footer>
+            <Join />
+            <Chat />
+        </footer>
     );
 };
