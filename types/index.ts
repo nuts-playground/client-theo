@@ -20,3 +20,14 @@ export interface ChatType {
     text: string;
     date: string;
 }
+
+export interface Room {
+    [key: string]: string | number | object | boolean;
+    id: number;
+    name: string;
+    players: Player[];
+    isStart: boolean;
+    currentTurn: string;
+    winner: string;
+    master: string;
+}
