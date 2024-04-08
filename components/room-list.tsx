@@ -48,6 +48,10 @@ export const RoomList = () => {
         socket?.emit("createRoom", room);
     };
 
+    const joinRoom = (roomId: number) => {
+        socket?.emit("joinRoom", { id: roomId });
+    };
+
     useEffect(() => {
         socket?.emit("getRooms", "틱택토");
     }, [socket]);
@@ -63,15 +67,15 @@ export const RoomList = () => {
                     const isFull = room.players.length === 2;
                     return (
                         <ListboxItem
-                            className="p-0"
                             key={index}
                             onClick={() => {
                                 if (player?.id) {
-                                    // joinRoom(room.id);
+                                    joinRoom(room?.id);
                                 }
                             }}
                         >
-                            <Popover showArrow placement="bottom">
+                            {room.name}
+                            {/* <Popover showArrow placement="bottom">
                                 <PopoverTrigger>
                                     <Button
                                         className="flex justify-start w-full font-bold"
@@ -98,7 +102,7 @@ export const RoomList = () => {
                                         </Button>
                                     </ButtonGroup>
                                 </PopoverContent>
-                            </Popover>
+                            </Popover> */}
                         </ListboxItem>
                     );
                 })}

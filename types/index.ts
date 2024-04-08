@@ -14,6 +14,11 @@ export interface Player {
     location: string;
 }
 
+export interface RoomPlayer extends Player {
+    isMaster: boolean;
+    ready: boolean;
+}
+
 export interface ChatType {
     id: string;
     player: string;
@@ -25,9 +30,10 @@ export interface Room {
     [key: string]: string | number | object | boolean;
     id: number;
     name: string;
-    players: Player[];
+    players: RoomPlayer[];
     isStart: boolean;
     currentTurn: string;
     winner: string;
+    state: "Playing" | "Waiting";
     master: string;
 }
