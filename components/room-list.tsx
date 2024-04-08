@@ -13,6 +13,11 @@ import {
     DropdownTrigger,
     DropdownMenu,
     DropdownItem,
+    Popover,
+    PopoverTrigger,
+    User,
+    PopoverContent,
+    ButtonGroup,
 } from "@nextui-org/react";
 import { useContext, useEffect } from "react";
 import { PlayerContext } from "@/context/player";
@@ -66,31 +71,34 @@ export const RoomList = () => {
                                 }
                             }}
                         >
-                            <Dropdown>
-                                <DropdownTrigger>
-                                    <Button className="w-full">
+                            <Popover showArrow placement="bottom">
+                                <PopoverTrigger>
+                                    <Button
+                                        className="flex justify-start w-full font-bold"
+                                        color="default"
+                                    >
                                         {room.name}
                                     </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu aria-label="Static Actions">
-                                    <DropdownItem key="new">
-                                        New file
-                                    </DropdownItem>
-                                    <DropdownItem key="copy">
-                                        Copy link
-                                    </DropdownItem>
-                                    <DropdownItem key="edit">
-                                        Edit file
-                                    </DropdownItem>
-                                    <DropdownItem
-                                        key="delete"
-                                        className="text-danger"
-                                        color="danger"
-                                    >
-                                        Delete file
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </Dropdown>
+                                </PopoverTrigger>
+                                <PopoverContent className="p-1">
+                                    <ButtonGroup>
+                                        <Button
+                                            color="primary"
+                                            type="button"
+                                            size="sm"
+                                        >
+                                            따라가기
+                                        </Button>
+                                        <Button
+                                            color="primary"
+                                            type="button"
+                                            size="sm"
+                                        >
+                                            메시지 보내기
+                                        </Button>
+                                    </ButtonGroup>
+                                </PopoverContent>
+                            </Popover>
                         </ListboxItem>
                     );
                 })}

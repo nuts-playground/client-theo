@@ -9,6 +9,7 @@ export const RoomsProvider = ({ children }: ProviderProps) => {
 
     useEffect(() => {
         socket?.on("sendRooms", (rooms: Room[]) => {
+            console.log("dd");
             setrooms(rooms);
         });
 
