@@ -7,10 +7,30 @@ import { Card } from "@nextui-org/react";
 import { SocketContext } from "@/context/socket";
 import { PlayerContext } from "@/context/player";
 
-export interface BoardCell {
+interface GameData {
+    turn: number;
+    board: BoardCell[][];
+}
+
+interface BoardCell {
     player: string;
     value: boolean;
 }
+
+const createGameData = () => {
+    const board = [];
+    for (let i = 0; i < 3; i++) {
+        const row = [];
+        for (let j = 0; j < 3; j++) {
+            row.push({ player: "", marker: false });
+        }
+        board.push(row);
+    }
+    return {
+        turn: 0,
+        board,
+    };
+};
 
 const GameBoard = () => {
     const room = useContext(RoomContext);
@@ -18,21 +38,23 @@ const GameBoard = () => {
     const player = useContext(PlayerContext);
 
     const onMark = (x: number, y: number) => {
-        if (room && player && socket) {
-            const data = [...room.data];
-            data[y][x] = {
-                player: player.name,
-                value: true,
-            };
+        if (!(room && player && socket)) return false;
+        if (player.name !== room.players[room.data.turn].name) return false;
 
-            socket.emit("updateGameData", data, room.id);
-        }
+        const data: GameData = { ...room.data };
+        data.turn = room.players.length - 1 === data.turn ? 0 : ++data.turn;
+        data.board[y][x] = {
+            player: player.name,
+            value: true,
+        };
+
+        socket.emit("updateGameData", data, room.id);
     };
 
     return (
         <div className="grid grid-cols-3 gap-4">
             {room &&
-                (room.data as BoardCell[][]).map((row, y) => {
+                (room.data as GameData).board.map((row, y) => {
                     return (
                         <>
                             {row.map((cell, x) => {
@@ -61,11 +83,12 @@ const GameBoard = () => {
 
 export default () => {
     const room = useContext(RoomContext);
+
     return (
         <div>
             <RoomList></RoomList>
             {room?.id && (
-                <Room>
+                <Room gameDataGenerator={createGameData}>
                     <GameBoard />
                 </Room>
             )}

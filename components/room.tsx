@@ -55,7 +55,13 @@ const Players = () => {
     );
 };
 
-export const Room = ({ children }: { children: React.ReactElement }) => {
+export const Room = ({
+    children,
+    gameDataGenerator,
+}: {
+    children: React.ReactElement;
+    gameDataGenerator: () => any;
+}) => {
     const socket = useContext(SocketContext);
     const room = useContext(RoomContext);
     const player = useContext(PlayerContext);
@@ -76,7 +82,7 @@ export const Room = ({ children }: { children: React.ReactElement }) => {
     };
 
     const startGame = (id: number | undefined) => {
-        socket?.emit("startGame", id);
+        socket?.emit("startGame", id, gameDataGenerator());
     };
 
     useEffect(() => {
