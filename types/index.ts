@@ -36,4 +36,5 @@ export interface Room {
     winner: string;
     state: "Playing" | "Waiting";
     master: string;
+    data: any;
 }

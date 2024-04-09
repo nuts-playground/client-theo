@@ -19,7 +19,43 @@ import { SocketContext } from "@/context/socket";
 import { RoomContext } from "@/context/room";
 import { PlayerContext } from "@/context/player";
 
-export const Room = () => {
+const Players = () => {
+    const room = useContext(RoomContext);
+    return (
+        <>
+            {room && (
+                <Listbox
+                    className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
+                    aria-label="Actions"
+                >
+                    {room.players.map((player, index) => {
+                        return (
+                            <ListboxItem
+                                className="flex justify-start"
+                                key={index}
+                            >
+                                {player.isMaster ? (
+                                    <Chip color="warning">방장</Chip>
+                                ) : (
+                                    <>
+                                        {player.ready ? (
+                                            <Chip color="primary">준비</Chip>
+                                        ) : (
+                                            <Chip color="danger">대기</Chip>
+                                        )}
+                                    </>
+                                )}
+                                <span className="ml-2">{player.name}</span>
+                            </ListboxItem>
+                        );
+                    })}
+                </Listbox>
+            )}
+        </>
+    );
+};
+
+export const Room = ({ children }: { children: React.ReactElement }) => {
     const socket = useContext(SocketContext);
     const room = useContext(RoomContext);
     const player = useContext(PlayerContext);
@@ -54,69 +90,46 @@ export const Room = () => {
                     {room?.name}
                 </ModalHeader>
                 <ModalBody>
-                    {room?.state === "Playing" && <div>게임 시작함</div>}
-                    <Listbox
-                        className="mb-4 gap-0 bg-content1 overflow-visible shadow-small rounded-medium"
-                        aria-label="Actions"
-                    >
-                        {(room?.players || []).map((player, index) => {
-                            console.log(player);
-                            return (
-                                <ListboxItem
-                                    className="flex justify-start"
-                                    key={index}
-                                >
-                                    {player.isMaster ? (
-                                        <Chip color="warning">방장</Chip>
-                                    ) : (
-                                        <>
-                                            {player.ready ? (
-                                                <Chip color="primary">
-                                                    준비
-                                                </Chip>
-                                            ) : (
-                                                <Chip color="danger">대기</Chip>
-                                            )}
-                                        </>
-                                    )}
-                                    <span className="ml-2">{player.name}</span>
-                                </ListboxItem>
-                            );
-                        })}
-                    </Listbox>
+                    <Players />
+                    {room?.state === "Playing" && <div>{children}</div>}
                 </ModalBody>
                 <ModalFooter>
-                    <Button
-                        color="danger"
-                        variant="light"
-                        onPress={() => exitRoom(room?.id)}
-                    >
-                        방 나가기
-                    </Button>
+                    {room?.state !== "Playing" && (
+                        <>
+                            <Button
+                                color="danger"
+                                variant="light"
+                                onPress={() => exitRoom(room?.id)}
+                            >
+                                방 나가기
+                            </Button>
 
-                    {isMaster && room ? (
-                        <Button
-                            color={
-                                room.players.filter((player) => player.ready)
-                                    .length ===
-                                room.players.length - 1
-                                    ? "primary"
-                                    : "default"
-                            }
-                            onClick={() => startGame(room.id)}
-                            disabled={room.players.every(
-                                (player) => player.ready
+                            {isMaster && room ? (
+                                <Button
+                                    color={
+                                        room.players.filter(
+                                            (player) => player.ready
+                                        ).length ===
+                                        room.players.length - 1
+                                            ? "primary"
+                                            : "default"
+                                    }
+                                    onClick={() => startGame(room.id)}
+                                    disabled={room.players.every(
+                                        (player) => player.ready
+                                    )}
+                                >
+                                    시작
+                                </Button>
+                            ) : (
+                                <Button
+                                    color={isReady ? "primary" : "default"}
+                                    onClick={() => toggleReady(room?.id)}
+                                >
+                                    {isReady ? "준비완료" : "준비"}
+                                </Button>
                             )}
-                        >
-                            시작
-                        </Button>
-                    ) : (
-                        <Button
-                            color={isReady ? "primary" : "default"}
-                            onClick={() => toggleReady(room?.id)}
-                        >
-                            {isReady ? "준비완료" : "준비"}
-                        </Button>
+                        </>
                     )}
                 </ModalFooter>
             </ModalContent>
