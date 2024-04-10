@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserLarge } from "@fortawesome/free-solid-svg-icons";
 import { SocketContext } from "@/context/socket";
 import { RoomContext } from "@/context/room";
-import { PlayerContext } from "@/context/player";
+import { UserContext } from "@/context/user";
 
 const Players = () => {
     const room = useContext(RoomContext);
@@ -64,12 +64,17 @@ export const Room = ({
 }) => {
     const socket = useContext(SocketContext);
     const room = useContext(RoomContext);
-    const player = useContext(PlayerContext);
+    const player = useContext(UserContext);
     const [isReady, setIsReady] = useState<boolean>(false);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const isMaster =
         room?.players.filter((player) => player.isMaster)[0].name ===
         player?.name;
+
+    const canStart =
+        room?.state !== "waiting" &&
+        room?.players.filter((player) => player.ready).length ===
+            (room?.players.length as number) - 1;
 
     const exitRoom = (id: number | undefined) => {
         socket?.emit("exitRoom", id);
@@ -97,10 +102,10 @@ export const Room = ({
                 </ModalHeader>
                 <ModalBody>
                     <Players />
-                    {room?.state === "Playing" && <div>{children}</div>}
+                    {room?.state === "playing" && <div>{children}</div>}
                 </ModalBody>
                 <ModalFooter>
-                    {room?.state !== "Playing" && (
+                    {room?.state !== "playing" && (
                         <>
                             <Button
                                 color="danger"
@@ -112,20 +117,11 @@ export const Room = ({
 
                             {isMaster && room ? (
                                 <Button
-                                    color={
-                                        room.players.filter(
-                                            (player) => player.ready
-                                        ).length ===
-                                        room.players.length - 1
-                                            ? "primary"
-                                            : "default"
-                                    }
+                                    color={canStart ? "primary" : "default"}
                                     onClick={() => startGame(room.id)}
-                                    disabled={room.players.every(
-                                        (player) => player.ready
-                                    )}
+                                    disabled={!canStart}
                                 >
-                                    시작
+                                    {canStart ? "시작" : "기다리는 중"}
                                 </Button>
                             ) : (
                                 <Button

@@ -5,7 +5,7 @@ import { RoomContext } from "@/context/room";
 import { useContext } from "react";
 import { Card } from "@nextui-org/react";
 import { SocketContext } from "@/context/socket";
-import { PlayerContext } from "@/context/player";
+import { UserContext } from "@/context/user";
 
 interface GameData {
     turn: number;
@@ -35,11 +35,11 @@ const createGameData = () => {
 const GameBoard = () => {
     const room = useContext(RoomContext);
     const socket = useContext(SocketContext);
-    const player = useContext(PlayerContext);
+    const user = useContext(UserContext);
 
     const onMark = (x: number, y: number) => {
-        if (!(room && player && socket)) return false;
-        if (player.name !== room.players[room.data.turn].name) return false;
+        if (!(room && user && socket)) return false;
+        if (user.username !== room.players[room.data.turn].name) return false;
 
         const data: GameData = { ...room.data };
         data.turn = room.players.length - 1 === data.turn ? 0 : ++data.turn;

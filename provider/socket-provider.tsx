@@ -1,20 +1,20 @@
 import { SocketContext, socket } from "@/context/socket";
 import { ProviderProps } from "@/types";
-import { PlayersProvider } from "@/provider/players-provider";
-import { PlayerProvider } from "./player-provider";
+import { UsersProvider } from "@/provider/users-provider";
+import { UserProvider } from "./user-provider";
 import { RoomsProvider } from "./rooms-provider";
 import { RoomProvider } from "./room-provider";
 
 export const SocketProvider = ({ children }: ProviderProps) => {
     return (
         <SocketContext.Provider value={socket}>
-            <PlayerProvider>
-                <PlayersProvider>
+            <UserProvider>
+                <UsersProvider>
                     <RoomsProvider>
                         <RoomProvider>{children}</RoomProvider>
                     </RoomsProvider>
-                </PlayersProvider>
-            </PlayerProvider>
+                </UsersProvider>
+            </UserProvider>
         </SocketContext.Provider>
     );
 };

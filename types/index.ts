@@ -8,13 +8,20 @@ export interface ProviderProps {
     children: React.ReactNode;
 }
 
-export interface Player {
+export interface User {
     id: string;
-    name: string;
+    username: string;
     location: string;
 }
 
-export interface RoomPlayer extends Player {
+export interface GameType {
+    id: string;
+    name: string;
+    minUsers: number;
+    maxUsers: number;
+}
+
+export interface RoomPlayer extends User {
     isMaster: boolean;
     ready: boolean;
 }
@@ -34,7 +41,7 @@ export interface Room {
     isStart: boolean;
     currentTurn: string;
     winner: string;
-    state: "Playing" | "Waiting";
+    state: "playing" | "waiting" | "full" | "canStart";
     master: string;
     data: any;
 }

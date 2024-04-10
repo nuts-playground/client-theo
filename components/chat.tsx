@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { PlayerContext } from "@/context/player";
+import { UserContext } from "@/context/user";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Listbox,
@@ -14,7 +14,7 @@ import { ChatType } from "@/types";
 
 export const Chat = () => {
     const socket = useContext(SocketContext);
-    const player = useContext(PlayerContext);
+    const player = useContext(UserContext);
     const [chats, setChats] = useState<ChatType[] | []>([]);
     const { register, handleSubmit, watch, reset, setFocus } = useForm();
     const scrollRef = useRef<HTMLElement | null>(null);
@@ -53,13 +53,16 @@ export const Chat = () => {
                     animate={{ bottom: 0, opacity: 1 }}
                     exit={{ bottom: "-10%", opacity: 0 }}
                     transition={{ delay: 0.5 }}
-                    className="fixed bottom-0 w-full p-6 pt-4 backdrop-blur-lg z-10"
+                    className="absolute inset-0 flex flex-col w-full p-6 pt-4 backdrop-blur-lg z-10"
                 >
-                    <ScrollShadow className="h-48" ref={scrollRef}>
-                        <Listbox>
+                    <ScrollShadow
+                        className="relative grow mb-2"
+                        ref={scrollRef}
+                    >
+                        <Listbox className="absolute justify-end">
                             {chats.map((chat) => {
                                 return (
-                                    <ListboxItem key={chat.id}>
+                                    <ListboxItem key={chat.id} className="p-0">
                                         <div className="flex w-full">
                                             <span className="flex-shrink-0 w-20 mr-2 overflow-hidden text-ellipsis">
                                                 {chat.player}
@@ -82,8 +85,14 @@ export const Chat = () => {
                             radius="none"
                             type="text"
                             {...register("text")}
+                            size="sm"
                         />
-                        <Button radius="none" color="primary" type="submit">
+                        <Button
+                            radius="none"
+                            color="primary"
+                            type="submit"
+                            size="sm"
+                        >
                             전송
                         </Button>
                     </form>

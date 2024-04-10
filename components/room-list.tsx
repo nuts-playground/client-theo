@@ -15,22 +15,21 @@ import {
     DropdownItem,
     Popover,
     PopoverTrigger,
-    User,
     PopoverContent,
     ButtonGroup,
 } from "@nextui-org/react";
 import { useContext, useEffect } from "react";
-import { PlayerContext } from "@/context/player";
+import { UserContext } from "@/context/user";
 import { useForm } from "react-hook-form";
 import { SocketContext } from "@/context/socket";
 import { RoomsContext } from "@/context/rooms";
-import { Player, Room } from "@/types";
+import { User, Room } from "@/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDoorClosed, faDoorOpen } from "@fortawesome/free-solid-svg-icons";
 
 export const RoomList = () => {
     const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
-    const player = useContext(PlayerContext);
+    const player = useContext(UserContext);
     const socket = useContext(SocketContext);
     const rooms = useContext(RoomsContext);
     const isLogin = Boolean(player?.id);
